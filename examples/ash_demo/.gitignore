@@ -1,0 +1,15 @@
+# Build artifacts
+/_build/
+/deps/
+
+# Generated docs
+/doc/
+
+# Crash dumps
+erl_crash.dump
+
+# Compiled NIF shared libraries (inherited from parent)
+/priv/native/
+
+# Rust build artifacts
+/target/

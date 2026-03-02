@@ -1,13 +1,12 @@
-defmodule AshTui.MixProject do
+defmodule AshDemo.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :ash_tui,
+      app: :ash_demo,
       version: "0.1.0",
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
-      elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps()
     ]
   end
@@ -18,13 +17,10 @@ defmodule AshTui.MixProject do
     ]
   end
 
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_), do: ["lib"]
-
   defp deps do
     [
       {:ash, "~> 3.19"},
-      {:ex_ratatui, "~> 0.4.1"}
+      {:ash_tui, path: "../.."}
     ]
   end
 end
