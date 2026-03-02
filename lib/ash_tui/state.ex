@@ -6,7 +6,13 @@ defmodule AshTui.State do
   No side effects, no processes — just data transformation.
   """
 
-  alias AshTui.Introspection.{DomainInfo, RelationshipInfo, ResourceInfo}
+  alias AshTui.Introspection.{
+    ActionInfo,
+    AttributeInfo,
+    DomainInfo,
+    RelationshipInfo,
+    ResourceInfo
+  }
 
   defstruct [
     :domains,
@@ -38,6 +44,33 @@ defmodule AshTui.State do
 
   @doc """
   Creates a new state from introspection data.
+
+  ## Examples
+
+      iex> domains = AshTui.Introspection.from_data([
+      ...>   %{
+      ...>     name: MyApp.Accounts,
+      ...>     resources: [
+      ...>       %{
+      ...>         name: MyApp.Accounts.User,
+      ...>         attributes: [%{name: :id, type: :uuid, primary_key?: true}],
+      ...>         actions: [],
+      ...>         relationships: []
+      ...>       }
+      ...>     ]
+      ...>   }
+      ...> ])
+      iex> state = AshTui.State.new(domains)
+      iex> state.current_domain.name
+      MyApp.Accounts
+      iex> state.current_resource.name
+      MyApp.Accounts.User
+      iex> state.current_tab
+      :attributes
+
+      iex> state = AshTui.State.new([])
+      iex> state.current_domain
+      nil
   """
   @spec new([DomainInfo.t()]) :: t()
   def new([]) do
@@ -80,7 +113,7 @@ defmodule AshTui.State do
   @doc """
   Returns the items for the currently active detail tab.
   """
-  @spec detail_items(t()) :: [map()]
+  @spec detail_items(t()) :: [AttributeInfo.t() | ActionInfo.t() | RelationshipInfo.t()]
   def detail_items(%__MODULE__{current_resource: nil}), do: []
 
   def detail_items(%__MODULE__{current_resource: resource, current_tab: :attributes}) do
@@ -97,6 +130,28 @@ defmodule AshTui.State do
 
   @doc """
   Returns the breadcrumb trail from the navigation stack.
+
+  ## Examples
+
+      iex> domains = AshTui.Introspection.from_data([
+      ...>   %{
+      ...>     name: MyApp.Accounts,
+      ...>     resources: [
+      ...>       %{
+      ...>         name: MyApp.Accounts.User,
+      ...>         attributes: [%{name: :id, type: :uuid, primary_key?: true}],
+      ...>         actions: [],
+      ...>         relationships: []
+      ...>       }
+      ...>     ]
+      ...>   }
+      ...> ])
+      iex> state = AshTui.State.new(domains)
+      iex> AshTui.State.breadcrumb(state)
+      "User"
+
+      iex> AshTui.State.breadcrumb(AshTui.State.new([]))
+      ""
   """
   @spec breadcrumb(t()) :: String.t()
   def breadcrumb(%__MODULE__{nav_stack: [], current_resource: nil}), do: ""

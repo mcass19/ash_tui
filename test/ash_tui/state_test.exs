@@ -4,6 +4,8 @@ defmodule AshTui.StateTest do
   alias AshTui.State
   alias AshTui.Test.Fixtures
 
+  doctest AshTui.State
+
   setup do
     domains = Fixtures.sample_domains()
     state = State.new(domains)

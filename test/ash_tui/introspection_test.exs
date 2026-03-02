@@ -13,6 +13,8 @@ defmodule AshTui.IntrospectionTest do
 
   alias AshTui.Test.Fixtures
 
+  doctest AshTui.Introspection
+
   describe "from_data/1" do
     test "creates domain info structs" do
       domains = Fixtures.sample_domains()
