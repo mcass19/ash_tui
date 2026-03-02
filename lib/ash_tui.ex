@@ -1,18 +1,42 @@
 defmodule AshTui do
   @moduledoc """
-  Documentation for `AshTui`.
+  Terminal-based interactive explorer for Ash Framework applications.
+
+  `ash_tui` provides a navigable two-panel TUI for discovering domains,
+  resources, attributes, actions, and relationships in any Ash project.
+
+  ## Usage
+
+  Add `ash_tui` to your dependencies (`:dev` only):
+
+      def deps do
+        [
+          {:ash_tui, "~> 0.1.0", only: :dev}
+        ]
+      end
+
+  Then run:
+
+      mix ash.tui
   """
 
   @doc """
-  Hello world.
+  Launches the Ash TUI explorer for the given OTP app.
 
-  ## Examples
-
-      iex> AshTui.hello()
-      :world
-
+  Loads all Ash domains and resources via compile-time introspection,
+  then starts an interactive terminal interface.
   """
-  def hello do
-    :world
+  @spec explore(atom()) :: :ok
+  def explore(otp_app) do
+    data = AshTui.Introspection.load(otp_app)
+    state = AshTui.State.new(data)
+
+    {:ok, pid} = AshTui.App.start_link(state: state)
+
+    ref = Process.monitor(pid)
+
+    receive do
+      {:DOWN, ^ref, :process, ^pid, _reason} -> :ok
+    end
   end
 end
