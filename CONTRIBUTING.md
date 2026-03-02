@@ -1,0 +1,50 @@
+# Contributing to AshTui
+
+Thanks for your interest in contributing!
+
+AshTui is a pure Elixir project built on [ExRatatui](https://github.com/mcass19/ex_ratatui).
+
+This guide will help you get set up.
+
+## Setup
+
+1. Clone the repo:
+
+```sh
+git clone https://github.com/mcass19/ash_tui.git
+cd ash_tui
+```
+
+2. Install dependencies:
+
+- **Elixir** 1.18+ and **Erlang/OTP** 27+
+
+3. Fetch deps and compile:
+
+```sh
+mix deps.get
+mix compile
+```
+
+## Running Tests
+
+```sh
+mix test
+```
+
+## Pull Requests
+
+Before submitting a PR, make sure the following pass:
+
+```sh
+mix format --check-formatted
+mix compile --warnings-as-errors
+mix test
+mix dialyzer
+```
+
+- Keep PRs focused — one feature or fix per PR
+- Add tests for new functionality
+- Update documentation (moduledocs, CHANGELOG, README if applicable)
+- Follow existing code style and patterns
+- Ensure CI passes before requesting review

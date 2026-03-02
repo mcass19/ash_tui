@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  main:
+    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - elixir: "1.19"
+            erlang: "28.2"
+            lint: true
+          - elixir: "1.18"
+            erlang: "27.3.4.6"
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/cache@v5
+        if: ${{ ! matrix.lint }}
+        with:
+          path: |
+            _build
+            deps
+          key: ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.erlang }}-${{ hashFiles('mix.lock') }}
+
+      - uses: actions/cache@v5
+        if: ${{ matrix.lint }}
+        with:
+          path: plts
+          key: ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.erlang }}-${{ hashFiles('mix.lock') }}-plt
+
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{ matrix.erlang }}
+          elixir-version: ${{ matrix.elixir }}
+
+      - run: mix deps.get --check-locked
+
+      - run: mix format --check-formatted
+        if: ${{ matrix.lint }}
+
+      - run: mix deps.unlock --check-unused
+        if: ${{ matrix.lint }}
+
+      - run: mix compile --warnings-as-errors
+
+      - run: mix dialyzer --format github
+        if: ${{ matrix.lint }}
+
+      - run: mix test

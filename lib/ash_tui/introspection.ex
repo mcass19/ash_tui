@@ -109,21 +109,28 @@ defmodule AshTui.Introspection do
 
   Useful for testing without requiring a real Ash application.
 
-  ## Example
+  ## Examples
 
-      AshTui.Introspection.from_data([
-        %{
-          name: MyApp.Accounts,
-          resources: [
-            %{
-              name: MyApp.Accounts.User,
-              attributes: [%{name: :id, type: :uuid, primary_key?: true}],
-              actions: [%{name: :read, type: :read, primary?: true}],
-              relationships: []
-            }
-          ]
-        }
-      ])
+      iex> [domain] = AshTui.Introspection.from_data([
+      ...>   %{
+      ...>     name: MyApp.Accounts,
+      ...>     resources: [
+      ...>       %{
+      ...>         name: MyApp.Accounts.User,
+      ...>         attributes: [%{name: :id, type: :uuid, primary_key?: true}],
+      ...>         actions: [%{name: :read, type: :read, primary?: true}],
+      ...>         relationships: []
+      ...>       }
+      ...>     ]
+      ...>   }
+      ...> ])
+      iex> domain.name
+      MyApp.Accounts
+      iex> [resource] = domain.resources
+      iex> resource.name
+      MyApp.Accounts.User
+      iex> resource.primary_key
+      [:id]
   """
   @spec from_data([map()]) :: [DomainInfo.t()]
   def from_data(domains) when is_list(domains) do

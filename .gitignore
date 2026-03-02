@@ -21,3 +21,15 @@ ash_tui-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# Dialyzer PLTs
+/plts/
+
+# claude
+.claude/
+
+# Dev docs
+docs/dev/
+
+# mise
+mise.toml

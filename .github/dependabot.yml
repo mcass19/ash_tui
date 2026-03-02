@@ -1,0 +1,28 @@
+version: 2
+
+updates:
+  - package-ecosystem: mix
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      hex-dependencies:
+        patterns:
+          - "*"
+    labels:
+      - "dependencies"
+      - "elixir"
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    labels:
+      - "dependencies"
+      - "github-actions"
