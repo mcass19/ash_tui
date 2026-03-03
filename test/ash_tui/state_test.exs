@@ -262,6 +262,45 @@ defmodule AshTui.StateTest do
     end
   end
 
+  describe "handle_key/2 - attribute detail overlay" do
+    test "enter on attributes tab opens detail overlay", %{state: state} do
+      state = %{state | focus: :detail, current_tab: :attributes}
+      state = State.handle_key(state, "enter")
+
+      assert state.detail_overlay != nil
+      assert state.detail_overlay.name == :id
+    end
+
+    test "enter on second attribute opens correct detail", %{state: state} do
+      state = %{state | focus: :detail, current_tab: :attributes, detail_selected: 1}
+      state = State.handle_key(state, "enter")
+
+      assert state.detail_overlay.name == :email
+    end
+
+    test "esc dismisses the detail overlay", %{state: state} do
+      state = %{state | focus: :detail, current_tab: :attributes}
+      state = State.handle_key(state, "enter")
+      assert state.detail_overlay != nil
+
+      state = State.handle_key(state, "esc")
+      assert state.detail_overlay == nil
+    end
+
+    test "other keys are ignored while overlay is open", %{state: state} do
+      state = %{state | focus: :detail, current_tab: :attributes}
+      state = State.handle_key(state, "enter")
+      original = state
+
+      # These should all be no-ops
+      assert State.handle_key(state, "j") == original
+      assert State.handle_key(state, "k") == original
+      assert State.handle_key(state, "tab") == original
+      assert State.handle_key(state, "h") == original
+      assert State.handle_key(state, "?") == original
+    end
+  end
+
   describe "handle_key/2 - help" do
     test "? toggles help on", %{state: state} do
       state = State.handle_key(state, "?")

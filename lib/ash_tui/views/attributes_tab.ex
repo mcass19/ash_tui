@@ -24,8 +24,7 @@ defmodule AshTui.Views.AttributesTab do
         [
           Atom.to_string(attr.name),
           format_type(attr.type),
-          format_required(attr),
-          format_constraints(attr.constraints)
+          format_required(attr)
         ]
       end)
 
@@ -38,9 +37,13 @@ defmodule AshTui.Views.AttributesTab do
 
     table = %Table{
       rows: rows,
-      header: ["Name", "Type", "Required?", "Constraints"],
-      widths: [{:min, 12}, {:min, 12}, {:length, 10}, {:min, 10}],
-      highlight_style: %Style{fg: {:rgb, 255, 215, 0}, modifiers: [:bold]},
+      header: ["Name", "Type", "Required?"],
+      widths: [{:min, 12}, {:min, 12}, {:length, 10}],
+      highlight_style: %Style{
+        fg: {:rgb, 255, 215, 0},
+        bg: {:rgb, 40, 40, 60},
+        modifiers: [:bold]
+      },
       selected: selected,
       column_spacing: 2,
       block: %Block{
@@ -53,24 +56,35 @@ defmodule AshTui.Views.AttributesTab do
     [{table, rect}]
   end
 
-  defp format_type(type) when is_atom(type), do: Atom.to_string(type)
+  defp format_type(type) when is_atom(type) do
+    type
+    |> Atom.to_string()
+    |> strip_type_prefix()
+  end
+
   defp format_type({:array, inner}), do: "[#{format_type(inner)}]"
-  defp format_type(type), do: inspect(type)
 
-  defp format_required(%{primary_key?: true, generated?: true}), do: "auto"
-  defp format_required(%{primary_key?: true}), do: "pk"
-  defp format_required(%{generated?: true}), do: "auto"
-  defp format_required(%{allow_nil?: false}), do: "yes"
-  defp format_required(_), do: "no"
+  defp format_type(type) do
+    type
+    |> inspect()
+    |> strip_type_prefix()
+  end
 
-  defp format_constraints([]), do: ""
-  defp format_constraints(constraints), do: inspect(constraints)
+  defp strip_type_prefix("Elixir.Ash.Type." <> rest), do: rest
+  defp strip_type_prefix("Elixir." <> rest), do: rest
+  defp strip_type_prefix(other), do: other
+
+  defp format_required(%{primary_key?: true, generated?: true}), do: "\u{1F511} auto"
+  defp format_required(%{primary_key?: true}), do: "\u{1F511}"
+  defp format_required(%{generated?: true}), do: "\u{2699} auto"
+  defp format_required(%{allow_nil?: false}), do: "\u{2713} yes"
+  defp format_required(_), do: "\u{25CB}"
 
   defp empty_table(message) do
     %Table{
-      rows: [[message, "", "", ""]],
-      header: ["Name", "Type", "Required?", "Constraints"],
-      widths: [{:min, 12}, {:min, 12}, {:length, 10}, {:min, 10}],
+      rows: [[message, "", ""]],
+      header: ["Name", "Type", "Required?"],
+      widths: [{:min, 12}, {:min, 12}, {:length, 10}],
       column_spacing: 2,
       block: %Block{
         borders: [:all],

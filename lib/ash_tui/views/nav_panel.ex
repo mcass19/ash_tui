@@ -6,22 +6,15 @@ defmodule AshTui.Views.NavPanel do
   """
 
   alias AshTui.State
-  alias ExRatatui.Layout
   alias ExRatatui.Layout.Rect
   alias ExRatatui.Style
-  alias ExRatatui.Widgets.{Block, List, Paragraph}
+  alias ExRatatui.Widgets.{Block, List}
 
   @doc """
-  Renders the navigation panel with domain/resource list and footer hints.
+  Renders the navigation panel with domain/resource tree.
   """
   @spec render(State.t(), Rect.t()) :: [{struct(), Rect.t()}]
   def render(state, rect) do
-    [list_area, footer_area] =
-      Layout.split(rect, :vertical, [
-        {:min, 0},
-        {:length, 1}
-      ])
-
     items = State.nav_items(state)
 
     list_items =
@@ -40,8 +33,12 @@ defmodule AshTui.Views.NavPanel do
     nav_list = %List{
       items: list_items,
       selected: state.nav_selected,
-      highlight_style: %Style{fg: {:rgb, 255, 215, 0}, modifiers: [:bold]},
-      highlight_symbol: " > ",
+      highlight_style: %Style{
+        fg: {:rgb, 255, 215, 0},
+        bg: {:rgb, 40, 40, 60},
+        modifiers: [:bold]
+      },
+      highlight_symbol: "\u{25B6} ",
       block: %Block{
         title: " Navigation ",
         borders: [:all],
@@ -50,21 +47,16 @@ defmodule AshTui.Views.NavPanel do
       }
     }
 
-    footer = %Paragraph{
-      text: " q:quit  ?:help",
-      style: %Style{fg: {:rgb, 100, 100, 120}}
-    }
-
-    [{nav_list, list_area}, {footer, footer_area}]
+    [{nav_list, rect}]
   end
 
   defp format_domain(name) do
     short = name |> Module.split() |> Elixir.List.last()
-    short
+    "\u{25C6} #{short}"
   end
 
   defp format_resource(name) do
     short = name |> Module.split() |> Elixir.List.last()
-    "  #{short}"
+    "  \u{2514} #{short}"
   end
 end

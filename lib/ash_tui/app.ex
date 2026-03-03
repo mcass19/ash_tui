@@ -8,7 +8,7 @@ defmodule AshTui.App do
   use ExRatatui.App
 
   alias AshTui.State
-  alias AshTui.Views.{ActionsTab, AttributesTab, NavPanel, RelationshipsTab}
+  alias AshTui.Views.{ActionsTab, AttributeDetail, AttributesTab, NavPanel, RelationshipsTab}
   alias ExRatatui.Layout
   alias ExRatatui.Layout.Rect
   alias ExRatatui.Style
@@ -57,7 +57,7 @@ defmodule AshTui.App do
       Layout.split(area, :vertical, [
         {:length, 3},
         {:min, 0},
-        {:length, 1}
+        {:length, 3}
       ])
 
     [nav_area, detail_area] =
@@ -71,7 +71,14 @@ defmodule AshTui.App do
     detail_widgets = render_detail(state, detail_area)
     footer_widgets = render_footer(state, footer_area)
 
-    header_widgets ++ nav_widgets ++ detail_widgets ++ footer_widgets
+    overlay_widgets =
+      if state.detail_overlay do
+        AttributeDetail.render(state.detail_overlay, area)
+      else
+        []
+      end
+
+    header_widgets ++ nav_widgets ++ detail_widgets ++ footer_widgets ++ overlay_widgets
   end
 
   defp render_header(state, rect) do
@@ -79,9 +86,9 @@ defmodule AshTui.App do
 
     title =
       if breadcrumb == "" do
-        "  Ash TUI Explorer"
+        "  \u{1F525} Ash TUI Explorer"
       else
-        "  Ash TUI Explorer  |  #{breadcrumb}"
+        "  \u{1F525} Ash TUI Explorer  \u{2502}  #{breadcrumb}"
       end
 
     header = %Paragraph{
@@ -90,7 +97,7 @@ defmodule AshTui.App do
       block: %Block{
         borders: [:all],
         border_type: :rounded,
-        border_style: %Style{fg: {:rgb, 100, 149, 237}}
+        border_style: %Style{fg: {:rgb, 255, 107, 53}}
       }
     }
 
@@ -111,19 +118,28 @@ defmodule AshTui.App do
   end
 
   defp render_tabs(state, rect) do
-    labels = ["1:Attributes", "2:Actions", "3:Relationships"]
-    tabs = [:attributes, :actions, :relationships]
+    tab_defs = [
+      {:attributes, "\u{1F4CB} Attributes"},
+      {:actions, "\u{26A1} Actions"},
+      {:relationships, "\u{1F517} Relationships"}
+    ]
 
     text =
-      labels
-      |> Enum.zip(tabs)
-      |> Enum.map_join("  ", fn {label, tab} ->
+      tab_defs
+      |> Enum.map_join("  ", fn {tab, label} ->
         if tab == state.current_tab do
           "[#{label}]"
         else
           " #{label} "
         end
       end)
+
+    tab_style =
+      if state.current_tab do
+        %Style{fg: :white, modifiers: [:bold]}
+      else
+        %Style{fg: {:rgb, 150, 150, 170}}
+      end
 
     detail_border =
       if state.focus == :detail do
@@ -142,7 +158,7 @@ defmodule AshTui.App do
 
     tab_bar = %Paragraph{
       text: "  #{text}",
-      style: %Style{fg: :white},
+      style: tab_style,
       block: %Block{
         title: resource_title,
         borders: [:all],
@@ -166,15 +182,20 @@ defmodule AshTui.App do
     text =
       case state.focus do
         :nav ->
-          " j/k:navigate  Enter:select  l/->:detail  Tab:switch tab  ?:help  q:quit"
+          " j/k/\u{2191}\u{2193} navigate  \u{23CE} select  h/l/\u{2190}\u{2192} panels  \u{21E5} tabs  ? help  q quit"
 
         :detail ->
-          " j/k:navigate  Enter:drill in  h/<-:nav  Tab:switch tab  Esc:back  ?:help  q:quit"
+          " j/k/\u{2191}\u{2193} navigate  \u{23CE} select  h/l/\u{2190}\u{2192} panels  \u{21E5} tabs  Esc back  ? help  q quit"
       end
 
     footer = %Paragraph{
       text: text,
-      style: %Style{fg: {:rgb, 100, 100, 120}}
+      style: %Style{fg: {:rgb, 150, 150, 170}},
+      block: %Block{
+        borders: [:all],
+        border_type: :rounded,
+        border_style: %Style{fg: {:rgb, 60, 60, 80}}
+      }
     }
 
     [{footer, rect}]
@@ -184,27 +205,27 @@ defmodule AshTui.App do
 
   defp render_help(area) do
     help_text = """
-    Ash TUI Explorer - Keyboard Reference
+    \u{1F525} Ash TUI Explorer - Keyboard Reference
 
-    Navigation
-      j / Down      Move selection down
-      k / Up        Move selection up
-      h / Left      Focus navigation panel
-      l / Right     Focus detail panel
-      Enter         Select / drill into item
+    \u{2500}\u{2500}\u{2500} Navigation \u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}
+      j / \u{2193}         Move selection down
+      k / \u{2191}         Move selection up
+      h / \u{2190}         Focus navigation panel
+      l / \u{2192}         Focus detail panel
+      \u{23CE} Enter      Select / drill into item
       Esc           Go back (pop nav stack)
 
-    Tabs
-      Tab           Cycle through tabs
-      1             Attributes tab
-      2             Actions tab
-      3             Relationships tab
+    \u{2500}\u{2500}\u{2500} Tabs \u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}
+      \u{21E5} Tab        Cycle through tabs
+      1             \u{1F4CB} Attributes tab
+      2             \u{26A1} Actions tab
+      3             \u{1F517} Relationships tab
 
-    Relationships
-      Enter         Navigate to destination resource
+    \u{2500}\u{2500}\u{2500} Relationships \u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}
+      \u{23CE} Enter      Navigate to destination resource
       Esc           Return to previous resource
 
-    Other
+    \u{2500}\u{2500}\u{2500} Other \u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}
       ?             Toggle this help
       q             Quit
 
@@ -215,10 +236,10 @@ defmodule AshTui.App do
       text: help_text,
       style: %Style{fg: :white},
       block: %Block{
-        title: " Help ",
+        title: " \u{1F525} Help ",
         borders: [:all],
         border_type: :double,
-        border_style: %Style{fg: {:rgb, 100, 149, 237}}
+        border_style: %Style{fg: {:rgb, 255, 107, 53}}
       }
     }
 

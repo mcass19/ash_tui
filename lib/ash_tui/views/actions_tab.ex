@@ -23,8 +23,8 @@ defmodule AshTui.Views.ActionsTab do
       Enum.map(state.current_resource.actions, fn action ->
         [
           Atom.to_string(action.name),
-          Atom.to_string(action.type),
-          if(action.primary?, do: "yes", else: ""),
+          format_type(action.type),
+          if(action.primary?, do: "\u{2605}", else: ""),
           format_arguments(action.arguments)
         ]
       end)
@@ -39,8 +39,12 @@ defmodule AshTui.Views.ActionsTab do
     table = %Table{
       rows: rows,
       header: ["Name", "Type", "Primary?", "Arguments"],
-      widths: [{:min, 12}, {:length, 10}, {:length, 9}, {:min, 10}],
-      highlight_style: %Style{fg: {:rgb, 255, 215, 0}, modifiers: [:bold]},
+      widths: [{:min, 12}, {:length, 14}, {:length, 9}, {:min, 10}],
+      highlight_style: %Style{
+        fg: {:rgb, 255, 215, 0},
+        bg: {:rgb, 40, 40, 60},
+        modifiers: [:bold]
+      },
       selected: selected,
       column_spacing: 2,
       block: %Block{
@@ -52,6 +56,12 @@ defmodule AshTui.Views.ActionsTab do
 
     [{table, rect}]
   end
+
+  defp format_type(:create), do: "\u{FF0B} create"
+  defp format_type(:read), do: "\u{1F441} read"
+  defp format_type(:update), do: "\u{270F} update"
+  defp format_type(:destroy), do: "\u{2715} destroy"
+  defp format_type(type), do: Atom.to_string(type)
 
   defp format_arguments([]), do: ""
 
@@ -65,7 +75,7 @@ defmodule AshTui.Views.ActionsTab do
     %Table{
       rows: [[message, "", "", ""]],
       header: ["Name", "Type", "Primary?", "Arguments"],
-      widths: [{:min, 12}, {:length, 10}, {:length, 9}, {:min, 10}],
+      widths: [{:min, 12}, {:length, 14}, {:length, 9}, {:min, 10}],
       column_spacing: 2,
       block: %Block{
         borders: [:all],

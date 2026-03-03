@@ -23,7 +23,8 @@ defmodule AshTui.State do
     detail_selected: 0,
     focus: :nav,
     nav_stack: [],
-    show_help: false
+    show_help: false,
+    detail_overlay: nil
   ]
 
   @type tab :: :attributes | :actions | :relationships
@@ -37,7 +38,8 @@ defmodule AshTui.State do
           detail_selected: non_neg_integer(),
           focus: :nav | :detail,
           nav_stack: [{atom(), atom(), tab()}],
-          show_help: boolean()
+          show_help: boolean(),
+          detail_overlay: AttributeInfo.t() | nil
         }
 
   @tabs [:attributes, :actions, :relationships]
@@ -180,6 +182,14 @@ defmodule AshTui.State do
     %{state | show_help: false}
   end
 
+  def handle_key(%__MODULE__{detail_overlay: overlay} = state, "esc") when not is_nil(overlay) do
+    %{state | detail_overlay: nil}
+  end
+
+  def handle_key(%__MODULE__{detail_overlay: overlay} = state, _key) when not is_nil(overlay) do
+    state
+  end
+
   def handle_key(state, "?") do
     %{state | show_help: true}
   end
@@ -257,6 +267,16 @@ defmodule AshTui.State do
 
       {:resource, resource} ->
         select_resource(state, resource)
+
+      nil ->
+        state
+    end
+  end
+
+  defp handle_enter(%{focus: :detail, current_tab: :attributes} = state) do
+    case Enum.at(state.current_resource.attributes, state.detail_selected) do
+      %AttributeInfo{} = attr ->
+        %{state | detail_overlay: attr}
 
       nil ->
         state
