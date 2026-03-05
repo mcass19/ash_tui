@@ -6,6 +6,8 @@ defmodule AshTui.State do
   No side effects, no processes — just data transformation.
   """
 
+  alias AshTui.Format
+
   alias AshTui.Introspection.{
     ActionInfo,
     AttributeInfo,
@@ -97,6 +99,29 @@ defmodule AshTui.State do
 
   This is a flat list: domain headers followed by their resources
   when the domain is selected/expanded.
+
+  ## Examples
+
+      iex> domains = AshTui.Introspection.from_data([
+      ...>   %{
+      ...>     name: MyApp.Accounts,
+      ...>     resources: [
+      ...>       %{
+      ...>         name: MyApp.Accounts.User,
+      ...>         attributes: [%{name: :id, type: :uuid, primary_key?: true}],
+      ...>         actions: [],
+      ...>         relationships: []
+      ...>       }
+      ...>     ]
+      ...>   }
+      ...> ])
+      iex> state = AshTui.State.new(domains)
+      iex> items = AshTui.State.nav_items(state)
+      iex> [{:domain, domain}, {:resource, resource}] = items
+      iex> domain.name
+      MyApp.Accounts
+      iex> resource.name
+      MyApp.Accounts.User
   """
   @spec nav_items(t()) :: [{:domain, DomainInfo.t()} | {:resource, ResourceInfo.t()}]
   def nav_items(%__MODULE__{domains: domains, current_domain: current_domain}) do
@@ -114,6 +139,29 @@ defmodule AshTui.State do
 
   @doc """
   Returns the items for the currently active detail tab.
+
+  ## Examples
+
+      iex> domains = AshTui.Introspection.from_data([
+      ...>   %{
+      ...>     name: MyApp.Accounts,
+      ...>     resources: [
+      ...>       %{
+      ...>         name: MyApp.Accounts.User,
+      ...>         attributes: [%{name: :id, type: :uuid, primary_key?: true}],
+      ...>         actions: [%{name: :read, type: :read, primary?: true}],
+      ...>         relationships: []
+      ...>       }
+      ...>     ]
+      ...>   }
+      ...> ])
+      iex> state = AshTui.State.new(domains)
+      iex> [attr] = AshTui.State.detail_items(state)
+      iex> attr.name
+      :id
+
+      iex> AshTui.State.detail_items(%AshTui.State{current_resource: nil})
+      []
   """
   @spec detail_items(t()) :: [AttributeInfo.t() | ActionInfo.t() | RelationshipInfo.t()]
   def detail_items(%__MODULE__{current_resource: nil}), do: []
@@ -159,16 +207,16 @@ defmodule AshTui.State do
   def breadcrumb(%__MODULE__{nav_stack: [], current_resource: nil}), do: ""
 
   def breadcrumb(%__MODULE__{nav_stack: [], current_resource: resource}) do
-    short_name(resource.name)
+    Format.short_name(resource.name)
   end
 
   def breadcrumb(%__MODULE__{nav_stack: stack, current_resource: resource}) do
     trail =
       stack
       |> Enum.reverse()
-      |> Enum.map(fn {_domain, resource_name, _tab} -> short_name(resource_name) end)
+      |> Enum.map(fn {_domain, resource_name, _tab} -> Format.short_name(resource_name) end)
 
-    current = if resource, do: short_name(resource.name), else: ""
+    current = if resource, do: Format.short_name(resource.name), else: ""
     Enum.join(trail ++ [current], " > ")
   end
 
@@ -273,6 +321,8 @@ defmodule AshTui.State do
     end
   end
 
+  defp handle_enter(%{focus: :detail, current_resource: nil} = state), do: state
+
   defp handle_enter(%{focus: :detail, current_tab: :attributes} = state) do
     case Enum.at(state.current_resource.attributes, state.detail_selected) do
       %AttributeInfo{} = attr ->
@@ -366,11 +416,5 @@ defmodule AshTui.State do
         resource -> {domain, resource}
       end
     end)
-  end
-
-  defp short_name(module) when is_atom(module) do
-    module
-    |> Module.split()
-    |> Elixir.List.last()
   end
 end

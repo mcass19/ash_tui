@@ -8,6 +8,7 @@ defmodule AshTui.App do
   use ExRatatui.App
 
   alias AshTui.State
+  alias AshTui.Theme
   alias AshTui.Views.{ActionsTab, AttributeDetail, AttributesTab, NavPanel, RelationshipsTab}
   alias ExRatatui.Layout
   alias ExRatatui.Layout.Rect
@@ -34,7 +35,10 @@ defmodule AshTui.App do
   end
 
   @impl true
-  def handle_event(%ExRatatui.Event.Key{code: "q", kind: "press"}, %{show_help: false} = state) do
+  def handle_event(
+        %ExRatatui.Event.Key{code: "q", kind: "press"},
+        %{show_help: false, detail_overlay: nil} = state
+      ) do
     {:stop, state}
   end
 
@@ -47,7 +51,6 @@ defmodule AshTui.App do
   end
 
   @impl true
-  def terminate(:normal, _state), do: System.stop(0)
   def terminate(_reason, _state), do: :ok
 
   # ── Layout ─────────────────────────────────────────────────
@@ -97,7 +100,7 @@ defmodule AshTui.App do
       block: %Block{
         borders: [:all],
         border_type: :rounded,
-        border_style: %Style{fg: {:rgb, 255, 107, 53}}
+        border_style: %Style{fg: Theme.ash_orange()}
       }
     }
 
@@ -134,19 +137,9 @@ defmodule AshTui.App do
         end
       end)
 
-    tab_style =
-      if state.current_tab do
-        %Style{fg: :white, modifiers: [:bold]}
-      else
-        %Style{fg: {:rgb, 150, 150, 170}}
-      end
+    tab_style = %Style{fg: :white, modifiers: [:bold]}
 
-    detail_border =
-      if state.focus == :detail do
-        %Style{fg: {:rgb, 100, 149, 237}}
-      else
-        %Style{fg: {:rgb, 60, 60, 80}}
-      end
+    detail_border = Theme.border_style(state.focus == :detail)
 
     resource_title =
       if state.current_resource do
@@ -190,11 +183,11 @@ defmodule AshTui.App do
 
     footer = %Paragraph{
       text: text,
-      style: %Style{fg: {:rgb, 150, 150, 170}},
+      style: %Style{fg: Theme.dim_text()},
       block: %Block{
         borders: [:all],
         border_type: :rounded,
-        border_style: %Style{fg: {:rgb, 60, 60, 80}}
+        border_style: Theme.unfocused_border_style()
       }
     }
 
@@ -239,7 +232,7 @@ defmodule AshTui.App do
         title: " \u{1F525} Help ",
         borders: [:all],
         border_type: :double,
-        border_style: %Style{fg: {:rgb, 255, 107, 53}}
+        border_style: %Style{fg: Theme.ash_orange()}
       }
     }
 

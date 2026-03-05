@@ -6,9 +6,12 @@ defmodule AshTui.Views.ActionsTab do
   """
 
   alias AshTui.State
+  alias AshTui.Theme
   alias ExRatatui.Layout.Rect
-  alias ExRatatui.Style
   alias ExRatatui.Widgets.{Block, Table}
+
+  @header ["Name", "Type", "Primary?", "Arguments"]
+  @widths [{:min, 12}, {:length, 14}, {:length, 9}, {:min, 10}]
 
   @doc """
   Renders the actions table for the current resource.
@@ -38,19 +41,15 @@ defmodule AshTui.Views.ActionsTab do
 
     table = %Table{
       rows: rows,
-      header: ["Name", "Type", "Primary?", "Arguments"],
-      widths: [{:min, 12}, {:length, 14}, {:length, 9}, {:min, 10}],
-      highlight_style: %Style{
-        fg: {:rgb, 255, 215, 0},
-        bg: {:rgb, 40, 40, 60},
-        modifiers: [:bold]
-      },
+      header: @header,
+      widths: @widths,
+      highlight_style: Theme.highlight_style(),
       selected: selected,
       column_spacing: 2,
       block: %Block{
         borders: [:all],
         border_type: :rounded,
-        border_style: %Style{fg: {:rgb, 60, 60, 80}}
+        border_style: Theme.unfocused_border_style()
       }
     }
 
@@ -74,13 +73,13 @@ defmodule AshTui.Views.ActionsTab do
   defp empty_table(message) do
     %Table{
       rows: [[message, "", "", ""]],
-      header: ["Name", "Type", "Primary?", "Arguments"],
-      widths: [{:min, 12}, {:length, 14}, {:length, 9}, {:min, 10}],
+      header: @header,
+      widths: @widths,
       column_spacing: 2,
       block: %Block{
         borders: [:all],
         border_type: :rounded,
-        border_style: %Style{fg: {:rgb, 60, 60, 80}}
+        border_style: Theme.unfocused_border_style()
       }
     }
   end

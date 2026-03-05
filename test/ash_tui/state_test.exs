@@ -27,6 +27,17 @@ defmodule AshTui.StateTest do
       assert state.current_domain == nil
       assert state.current_resource == nil
     end
+
+    test "handles domain with zero resources" do
+      domains =
+        AshTui.Introspection.from_data([
+          %{name: Test.Empty, resources: []}
+        ])
+
+      state = State.new(domains)
+      assert state.current_domain.name == Test.Empty
+      assert state.current_resource == nil
+    end
   end
 
   describe "nav_items/1" do
@@ -262,6 +273,67 @@ defmodule AshTui.StateTest do
     end
   end
 
+  describe "handle_key/2 - detail navigation" do
+    test "j/k in detail panel moves detail_selected", %{state: state} do
+      state = %{state | focus: :detail}
+      state = State.handle_key(state, "j")
+      assert state.detail_selected == 1
+
+      state = State.handle_key(state, "k")
+      assert state.detail_selected == 0
+    end
+
+    test "detail selection clamped to 0 when no items", %{state: _state} do
+      empty_state = State.new([])
+      state = %{empty_state | focus: :detail}
+      state = State.handle_key(state, "j")
+      assert state.detail_selected == 0
+    end
+
+    test "enter on actions tab is a no-op", %{state: state} do
+      state = %{state | focus: :detail, current_tab: :actions}
+      new_state = State.handle_key(state, "enter")
+      assert new_state == state
+    end
+  end
+
+  describe "handle_key/2 - multi-level navigation" do
+    test "drill 2 levels deep via relationships", %{state: state} do
+      # User -> posts -> Post -> author -> User
+      state = %{state | focus: :detail, current_tab: :relationships}
+      state = State.handle_key(state, "enter")
+      assert state.current_resource.name == Test.Blog.Post
+      assert length(state.nav_stack) == 1
+
+      state = %{state | current_tab: :relationships}
+      state = State.handle_key(state, "enter")
+      assert state.current_resource.name == Test.Accounts.User
+      assert length(state.nav_stack) == 2
+    end
+
+    test "esc unwinds 2 levels back", %{state: state} do
+      state = %{state | focus: :detail, current_tab: :relationships}
+      state = State.handle_key(state, "enter")
+      state = %{state | current_tab: :relationships}
+      state = State.handle_key(state, "enter")
+      assert length(state.nav_stack) == 2
+
+      state = State.handle_key(state, "esc")
+      assert state.current_resource.name == Test.Blog.Post
+      assert length(state.nav_stack) == 1
+
+      state = State.handle_key(state, "esc")
+      assert state.current_resource.name == Test.Accounts.User
+      assert state.nav_stack == []
+    end
+  end
+
+  describe "handle_key/2 - unknown keys" do
+    test "unknown key is a no-op", %{state: state} do
+      assert State.handle_key(state, "x") == state
+    end
+  end
+
   describe "handle_key/2 - attribute detail overlay" do
     test "enter on attributes tab opens detail overlay", %{state: state} do
       state = %{state | focus: :detail, current_tab: :attributes}
@@ -311,6 +383,48 @@ defmodule AshTui.StateTest do
       state = %{state | show_help: true}
       state = State.handle_key(state, "j")
       assert state.show_help == false
+    end
+  end
+
+  describe "handle_key/2 - edge cases" do
+    test "enter in detail focus with nil resource is a no-op" do
+      state = %State{
+        domains: [],
+        current_domain: nil,
+        current_resource: nil,
+        focus: :detail,
+        current_tab: :attributes
+      }
+
+      assert State.handle_key(state, "enter") == state
+    end
+
+    test "enter on relationship with non-existent destination is a no-op", %{state: state} do
+      alias AshTui.Introspection.{RelationshipInfo, ResourceInfo}
+
+      # Create a resource with a relationship pointing to a non-existent module
+      fake_resource = %ResourceInfo{
+        name: Test.Fake,
+        domain: Test.Accounts,
+        relationships: [
+          %RelationshipInfo{name: :ghost, type: :belongs_to, destination: Test.NonExistent}
+        ],
+        attributes: [],
+        actions: []
+      }
+
+      state = %{
+        state
+        | current_resource: fake_resource,
+          focus: :detail,
+          current_tab: :relationships
+      }
+
+      new_state = State.handle_key(state, "enter")
+
+      # Should be unchanged since destination doesn't exist
+      assert new_state.current_resource.name == Test.Fake
+      assert new_state.nav_stack == []
     end
   end
 end

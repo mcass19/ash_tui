@@ -34,6 +34,20 @@ defmodule AshTui.IntrospectionTest do
       assert %AttributeInfo{type: :ci_string, allow_nil?: false} = email
     end
 
+    test "preserves attribute constraints through from_data/1" do
+      [accounts | _] = Fixtures.sample_domains()
+      [user | _] = accounts.resources
+
+      email = Enum.find(user.attributes, &(&1.name == :email))
+      assert email.constraints == [trim?: true, allow_empty?: false]
+
+      name = Enum.find(user.attributes, &(&1.name == :name))
+      assert name.constraints == [trim?: true]
+
+      role = Enum.find(user.attributes, &(&1.name == :role))
+      assert role.constraints == [one_of: [:admin, :user, :moderator]]
+    end
+
     test "extracts primary keys from attributes" do
       [accounts | _] = Fixtures.sample_domains()
       [user | _] = accounts.resources

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.0] - 2026-03-02
+## [0.1.0] - 2026-03-06
 
 ### Added
 
@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `AshTui.Introspection` module for loading domain/resource metadata via Ash's compile-time introspection API
 - `AshTui.State` module with pure navigation logic, tab switching, and nav stack
 - Navigation panel with domain/resource list and focus-aware borders
-- Attributes tab showing name, type, required?, and constraints
+- Attributes tab showing name, type, and required status
 - Actions tab showing name, type, primary?, and arguments
 - Relationships tab with navigable links to destination resources
 - Relationship navigation with breadcrumb trail and Esc to go back
@@ -25,3 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `mix ash.tui` task with `--otp-app` option
 - Example Ash app (`examples/ash_demo`) with Accounts and Blog domains
 - Test suite for introspection, state transitions, and navigation
+- Attribute detail overlay — press `Enter` on any attribute to see full details (type, constraints, primary key, generated, etc.) in a centered modal
+- `AshTui.Views.AttributeDetail` view module for rendering the overlay
+- Footer keybinding hints now show `j/k/h/l` alongside arrow keys
+- Removed Constraints column from the attributes table to avoid truncation — constraints are now shown in the attribute detail overlay instead

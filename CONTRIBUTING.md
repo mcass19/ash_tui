@@ -4,6 +4,8 @@ Thanks for your interest in contributing!
 
 AshTui is a pure Elixir project built on [ExRatatui](https://github.com/mcass19/ex_ratatui).
 
+Feel free to also consider contributing on the upstream library if you're missing a feature, or something is not working. Contributions are welcome everywhere!
+
 This guide will help you get set up.
 
 ## Setup

@@ -29,6 +29,20 @@ defmodule AshTui do
   @spec explore(atom()) :: :ok
   def explore(otp_app) do
     data = AshTui.Introspection.load(otp_app)
+
+    if data == [] do
+      IO.puts(:stderr, """
+
+      warning: No Ash domains found for :#{otp_app}.
+
+      Make sure your config includes:
+
+          config :#{otp_app}, ash_domains: [MyApp.SomeDomain]
+
+      Or check that the --otp-app flag matches your application.
+      """)
+    end
+
     state = AshTui.State.new(data)
 
     {:ok, pid} = AshTui.App.start_link(state: state)

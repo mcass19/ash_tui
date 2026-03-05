@@ -3,10 +3,12 @@ defmodule AshTui.Views.AttributeDetail do
   Overlay view showing full details for a selected attribute.
   """
 
+  alias AshTui.Format
   alias AshTui.Introspection.AttributeInfo
+  alias AshTui.Theme
   alias ExRatatui.Layout.Rect
   alias ExRatatui.Style
-  alias ExRatatui.Widgets.{Block, Paragraph}
+  alias ExRatatui.Widgets.{Block, Clear, Paragraph}
 
   @doc """
   Renders a centered overlay with full attribute details.
@@ -32,7 +34,7 @@ defmodule AshTui.Views.AttributeDetail do
     lines =
       [
         "  Name:         #{attr.name}",
-        "  Type:         #{format_type(attr.type)}",
+        "  Type:         #{Format.format_type(attr.type)}",
         "  Required:     #{format_required(attr)}",
         "  Primary Key:  #{yes_no(attr.primary_key?)}",
         "  Generated:    #{yes_no(attr.generated?)}"
@@ -60,30 +62,13 @@ defmodule AshTui.Views.AttributeDetail do
         title: " Attribute: #{attr.name} ",
         borders: [:all],
         border_type: :double,
-        border_style: %Style{fg: {:rgb, 255, 215, 0}}
+        border_style: %Style{fg: Theme.gold()},
+        style: %Style{bg: Theme.overlay_bg()}
       }
     }
 
-    [{widget, overlay_rect}]
+    [{%Clear{}, overlay_rect}, {widget, overlay_rect}]
   end
-
-  defp format_type(type) when is_atom(type) do
-    type
-    |> Atom.to_string()
-    |> strip_type_prefix()
-  end
-
-  defp format_type({:array, inner}), do: "[#{format_type(inner)}]"
-
-  defp format_type(type) do
-    type
-    |> inspect()
-    |> strip_type_prefix()
-  end
-
-  defp strip_type_prefix("Elixir.Ash.Type." <> rest), do: rest
-  defp strip_type_prefix("Elixir." <> rest), do: rest
-  defp strip_type_prefix(other), do: other
 
   defp format_required(%{primary_key?: true}), do: "primary key"
   defp format_required(%{allow_nil?: false}), do: "yes"
@@ -98,7 +83,7 @@ defmodule AshTui.Views.AttributeDetail do
   defp format_constraint({:allow_empty?, false}), do: "!empty"
 
   defp format_constraint({:one_of, values}) do
-    vals = values |> Enum.map_join("|", &Atom.to_string/1)
+    vals = Enum.map_join(values, "|", &to_string/1)
     "one_of: #{vals}"
   end
 

@@ -15,9 +15,18 @@ defmodule AshTui.Test.Fixtures do
             name: Test.Accounts.User,
             attributes: [
               %{name: :id, type: :uuid, primary_key?: true, generated?: true},
-              %{name: :email, type: :ci_string, allow_nil?: false},
-              %{name: :name, type: :string},
-              %{name: :role, type: :atom}
+              %{
+                name: :email,
+                type: :ci_string,
+                allow_nil?: false,
+                constraints: [trim?: true, allow_empty?: false]
+              },
+              %{name: :name, type: :string, constraints: [trim?: true]},
+              %{
+                name: :role,
+                type: :atom,
+                constraints: [one_of: [:admin, :user, :moderator]]
+              }
             ],
             actions: [
               %{name: :read, type: :read, primary?: true},

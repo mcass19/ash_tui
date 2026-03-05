@@ -8,10 +8,14 @@ defmodule AshTui.Views.RelationshipsTab do
   Pure function — takes state and rect, returns `[{widget, rect}]`.
   """
 
+  alias AshTui.Format
   alias AshTui.State
+  alias AshTui.Theme
   alias ExRatatui.Layout.Rect
-  alias ExRatatui.Style
   alias ExRatatui.Widgets.{Block, Table}
+
+  @header ["Name", "Type", "Destination", ""]
+  @widths [{:min, 12}, {:length, 18}, {:min, 15}, {:length, 12}]
 
   @doc """
   Renders the relationships table for the current resource.
@@ -27,7 +31,7 @@ defmodule AshTui.Views.RelationshipsTab do
         [
           Atom.to_string(rel.name),
           format_type(rel.type),
-          short_name(rel.destination),
+          Format.short_name(rel.destination),
           "\u{23CE} drill in"
         ]
       end)
@@ -41,19 +45,15 @@ defmodule AshTui.Views.RelationshipsTab do
 
     table = %Table{
       rows: rows,
-      header: ["Name", "Type", "Destination", ""],
-      widths: [{:min, 12}, {:length, 18}, {:min, 15}, {:length, 12}],
-      highlight_style: %Style{
-        fg: {:rgb, 255, 215, 0},
-        bg: {:rgb, 40, 40, 60},
-        modifiers: [:bold]
-      },
+      header: @header,
+      widths: @widths,
+      highlight_style: Theme.highlight_style(),
       selected: selected,
       column_spacing: 2,
       block: %Block{
         borders: [:all],
         border_type: :rounded,
-        border_style: %Style{fg: {:rgb, 60, 60, 80}}
+        border_style: Theme.unfocused_border_style()
       }
     }
 
@@ -66,20 +66,16 @@ defmodule AshTui.Views.RelationshipsTab do
   defp format_type(:many_to_many), do: "\u{2194} many_to_many"
   defp format_type(type), do: Atom.to_string(type)
 
-  defp short_name(module) when is_atom(module) do
-    module |> Module.split() |> Elixir.List.last()
-  end
-
   defp empty_table(message) do
     %Table{
       rows: [[message, "", "", ""]],
-      header: ["Name", "Type", "Destination", ""],
-      widths: [{:min, 12}, {:length, 18}, {:min, 15}, {:length, 12}],
+      header: @header,
+      widths: @widths,
       column_spacing: 2,
       block: %Block{
         borders: [:all],
         border_type: :rounded,
-        border_style: %Style{fg: {:rgb, 60, 60, 80}}
+        border_style: Theme.unfocused_border_style()
       }
     }
   end

@@ -9,10 +9,14 @@ Terminal-based interactive explorer for [Ash Framework](https://ash-hq.org) appl
 
 Navigate your domains, resources, attributes, actions, and relationships — without leaving the terminal.
 
+<!-- TODO: Add screenshot here -->
+<!-- ![AshTui Explorer](assets/screenshot.png) -->
+
 ## Features
 
 - Two-panel navigable interface with domain/resource tree
 - Three detail tabs: Attributes, Actions, Relationships
+- Attribute detail overlay — press Enter for full details including constraints
 - Relationship navigation with breadcrumb trail and back stack
 - Vim keybindings (`j`/`k`/`h`/`l`) and arrow key support
 - Tab switching with `Tab` or `1`/`2`/`3`
@@ -96,8 +100,8 @@ No database connection is needed. The tool reads the *shape* of your app, not it
 | `k` / `Up` | Move selection up |
 | `h` / `Left` | Focus navigation panel |
 | `l` / `Right` | Focus detail panel |
-| `Enter` | Select item / drill into relationship |
-| `Esc` | Go back (pop navigation stack) |
+| `Enter` | Select item / drill into relationship / show attribute detail |
+| `Esc` | Go back / close overlay |
 
 ### Tabs
 
@@ -128,6 +132,8 @@ mix ash.tui
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
+
+AshTui is built on [ExRatatui](https://github.com/mcass19/ex_ratatui), a general-purpose terminal UI library for Elixir. If you're interested in improving the underlying rendering, widgets, or layout engine, contributions to ExRatatui are very welcome as well.
 
 ## License
 

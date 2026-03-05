@@ -22,7 +22,8 @@ defmodule AshTui.MixProject do
       docs: docs(),
       dialyzer: [
         plt_local_path: "plts",
-        plt_core_path: "plts/core"
+        plt_core_path: "plts/core",
+        plt_add_apps: [:mix]
       ]
     ]
   end
@@ -54,7 +55,8 @@ defmodule AshTui.MixProject do
         "GitHub" => @source_url,
         "Changelog" => @changelog_url
       },
-      files: ~w(lib .formatter.exs mix.exs README.md LICENSE CHANGELOG.md)
+      files: ~w(lib .formatter.exs mix.exs README.md LICENSE CHANGELOG.md),
+      keywords: ["ash", "tui", "terminal", "explorer", "introspection", "ratatui"]
     ]
   end
 
@@ -70,7 +72,9 @@ defmodule AshTui.MixProject do
       groups_for_modules: [
         Core: [
           AshTui,
-          AshTui.App
+          AshTui.App,
+          AshTui.Format,
+          AshTui.Theme
         ],
         Introspection: [
           AshTui.Introspection,
@@ -87,6 +91,7 @@ defmodule AshTui.MixProject do
         Views: [
           AshTui.Views.NavPanel,
           AshTui.Views.AttributesTab,
+          AshTui.Views.AttributeDetail,
           AshTui.Views.ActionsTab,
           AshTui.Views.RelationshipsTab
         ]

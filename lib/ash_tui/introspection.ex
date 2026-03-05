@@ -6,90 +6,14 @@ defmodule AshTui.Introspection do
   connection is needed — this reads the *shape* of an app, not its data.
   """
 
-  defmodule DomainInfo do
-    @moduledoc "Holds introspection data for a single Ash domain."
-
-    defstruct [:name, resources: []]
-
-    @type t :: %__MODULE__{
-            name: atom(),
-            resources: [ResourceInfo.t()]
-          }
-  end
-
-  defmodule ResourceInfo do
-    @moduledoc "Holds introspection data for a single Ash resource."
-
-    defstruct [:name, :domain, primary_key: [], attributes: [], actions: [], relationships: []]
-
-    @type t :: %__MODULE__{
-            name: atom(),
-            domain: atom(),
-            primary_key: [atom()],
-            attributes: [AttributeInfo.t()],
-            actions: [ActionInfo.t()],
-            relationships: [RelationshipInfo.t()]
-          }
-  end
-
-  defmodule AttributeInfo do
-    @moduledoc "Holds introspection data for a resource attribute."
-
-    defstruct [
-      :name,
-      :type,
-      allow_nil?: true,
-      primary_key?: false,
-      generated?: false,
-      constraints: []
-    ]
-
-    @type t :: %__MODULE__{
-            name: atom(),
-            type: atom() | {:array, atom()},
-            allow_nil?: boolean(),
-            primary_key?: boolean(),
-            generated?: boolean(),
-            constraints: keyword()
-          }
-  end
-
-  defmodule ActionInfo do
-    @moduledoc "Holds introspection data for a resource action."
-
-    defstruct [:name, :type, primary?: false, arguments: []]
-
-    @type t :: %__MODULE__{
-            name: atom(),
-            type: atom(),
-            primary?: boolean(),
-            arguments: [ArgumentInfo.t()]
-          }
-  end
-
-  defmodule ArgumentInfo do
-    @moduledoc "Holds introspection data for an action argument."
-
-    defstruct [:name, :type, allow_nil?: true]
-
-    @type t :: %__MODULE__{
-            name: atom(),
-            type: atom() | {:array, atom()},
-            allow_nil?: boolean()
-          }
-  end
-
-  defmodule RelationshipInfo do
-    @moduledoc "Holds introspection data for a resource relationship."
-
-    defstruct [:name, :type, :destination]
-
-    @type t :: %__MODULE__{
-            name: atom(),
-            type: :belongs_to | :has_one | :has_many | :many_to_many,
-            destination: atom()
-          }
-  end
+  alias __MODULE__.{
+    ActionInfo,
+    ArgumentInfo,
+    AttributeInfo,
+    DomainInfo,
+    RelationshipInfo,
+    ResourceInfo
+  }
 
   @doc """
   Loads all Ash domains and their resources for the given OTP app.

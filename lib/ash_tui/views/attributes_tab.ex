@@ -5,10 +5,14 @@ defmodule AshTui.Views.AttributesTab do
   Pure function — takes state and rect, returns `[{widget, rect}]`.
   """
 
+  alias AshTui.Format
   alias AshTui.State
+  alias AshTui.Theme
   alias ExRatatui.Layout.Rect
-  alias ExRatatui.Style
   alias ExRatatui.Widgets.{Block, Table}
+
+  @header ["Name", "Type", "Required?"]
+  @widths [{:min, 12}, {:min, 12}, {:length, 10}]
 
   @doc """
   Renders the attributes table for the current resource.
@@ -23,7 +27,7 @@ defmodule AshTui.Views.AttributesTab do
       Enum.map(state.current_resource.attributes, fn attr ->
         [
           Atom.to_string(attr.name),
-          format_type(attr.type),
+          Format.format_type(attr.type),
           format_required(attr)
         ]
       end)
@@ -37,42 +41,20 @@ defmodule AshTui.Views.AttributesTab do
 
     table = %Table{
       rows: rows,
-      header: ["Name", "Type", "Required?"],
-      widths: [{:min, 12}, {:min, 12}, {:length, 10}],
-      highlight_style: %Style{
-        fg: {:rgb, 255, 215, 0},
-        bg: {:rgb, 40, 40, 60},
-        modifiers: [:bold]
-      },
+      header: @header,
+      widths: @widths,
+      highlight_style: Theme.highlight_style(),
       selected: selected,
       column_spacing: 2,
       block: %Block{
         borders: [:all],
         border_type: :rounded,
-        border_style: %Style{fg: {:rgb, 60, 60, 80}}
+        border_style: Theme.unfocused_border_style()
       }
     }
 
     [{table, rect}]
   end
-
-  defp format_type(type) when is_atom(type) do
-    type
-    |> Atom.to_string()
-    |> strip_type_prefix()
-  end
-
-  defp format_type({:array, inner}), do: "[#{format_type(inner)}]"
-
-  defp format_type(type) do
-    type
-    |> inspect()
-    |> strip_type_prefix()
-  end
-
-  defp strip_type_prefix("Elixir.Ash.Type." <> rest), do: rest
-  defp strip_type_prefix("Elixir." <> rest), do: rest
-  defp strip_type_prefix(other), do: other
 
   defp format_required(%{primary_key?: true, generated?: true}), do: "\u{1F511} auto"
   defp format_required(%{primary_key?: true}), do: "\u{1F511}"
@@ -83,13 +65,13 @@ defmodule AshTui.Views.AttributesTab do
   defp empty_table(message) do
     %Table{
       rows: [[message, "", ""]],
-      header: ["Name", "Type", "Required?"],
-      widths: [{:min, 12}, {:min, 12}, {:length, 10}],
+      header: @header,
+      widths: @widths,
       column_spacing: 2,
       block: %Block{
         borders: [:all],
         border_type: :rounded,
-        border_style: %Style{fg: {:rgb, 60, 60, 80}}
+        border_style: Theme.unfocused_border_style()
       }
     }
   end
