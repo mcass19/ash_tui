@@ -166,7 +166,7 @@ defmodule AshTui.Views.AttributeDetailTest do
 
     test "overlay is centered within area", %{area: area} do
       attr = %AttributeInfo{name: :id, type: :uuid}
-      [{_widget, rect}] = AttributeDetail.render(attr, area)
+      [{_, rect} | _] = AttributeDetail.render(attr, area)
 
       # Overlay should be smaller than the area
       assert rect.width < area.width

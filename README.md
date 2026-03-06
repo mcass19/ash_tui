@@ -9,8 +9,7 @@ Terminal-based interactive explorer for [Ash Framework](https://ash-hq.org) appl
 
 Navigate your domains, resources, attributes, actions, and relationships — without leaving the terminal.
 
-<!-- TODO: Add screenshot here -->
-<!-- ![AshTui Explorer](assets/screenshot.png) -->
+![AshTui Explorer](https://raw.githubusercontent.com/mcass19/ash_tui/main/assets/demo.png)
 
 ## Features
 
