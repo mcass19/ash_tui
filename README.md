@@ -136,4 +136,4 @@ AshTui is built on [ExRatatui](https://github.com/mcass19/ex_ratatui), a general
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](https://github.com/mcass19/ash_tui/blob/main/LICENSE).
