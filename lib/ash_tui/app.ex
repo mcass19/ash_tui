@@ -122,9 +122,9 @@ defmodule AshTui.App do
 
   defp render_tabs(state, rect) do
     tab_defs = [
-      {:attributes, "\u{1F4CB} Attributes"},
-      {:actions, "\u{26A1} Actions"},
-      {:relationships, "\u{1F517} Relationships"}
+      {:attributes, "Attributes"},
+      {:actions, "Actions"},
+      {:relationships, "Relationships"}
     ]
 
     text =
@@ -210,9 +210,9 @@ defmodule AshTui.App do
 
     \u{2500}\u{2500}\u{2500} Tabs \u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}
       \u{21E5} Tab        Cycle through tabs
-      1             \u{1F4CB} Attributes tab
-      2             \u{26A1} Actions tab
-      3             \u{1F517} Relationships tab
+      1             Attributes tab
+      2             Actions tab
+      3             Relationships tab
 
     \u{2500}\u{2500}\u{2500} Relationships \u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}
       \u{23CE} Enter      Navigate to destination resource
@@ -229,7 +229,7 @@ defmodule AshTui.App do
       text: help_text,
       style: %Style{fg: :white},
       block: %Block{
-        title: " \u{1F525} Help ",
+        title: " Help ",
         borders: [:all],
         border_type: :double,
         border_style: %Style{fg: Theme.ash_orange()}
