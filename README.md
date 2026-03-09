@@ -48,7 +48,7 @@ Add `ash_tui` to your dependencies (`:dev` only recommended):
 ```elixir
 def deps do
   [
-    {:ash_tui, "~> 0.1.0", only: :dev}
+    {:ash_tui, "~> 0.1", only: :dev}
   ]
 end
 ```

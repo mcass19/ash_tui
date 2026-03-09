@@ -11,7 +11,7 @@ defmodule AshTui do
 
       def deps do
         [
-          {:ash_tui, "~> 0.1.0", only: :dev}
+          {:ash_tui, "~> 0.1", only: :dev}
         ]
       end
 
