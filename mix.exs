@@ -40,7 +40,7 @@ defmodule AshTui.MixProject do
   defp deps do
     [
       {:ash, "~> 3.19"},
-      {:ex_ratatui, "~> 0.4.2"},
+      {:ex_ratatui, "~> 0.5.0"},
 
       # Dev
       {:ex_doc, "~> 0.35", only: :dev, runtime: false},

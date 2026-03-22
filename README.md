@@ -15,8 +15,10 @@ Navigate your domains, resources, attributes, actions, and relationships — wit
 
 - Two-panel navigable interface with domain/resource tree
 - Three detail tabs: Attributes, Actions, Relationships
-- Attribute detail overlay — press Enter for full details including constraints
+- Attribute detail overlay — press Enter for full details including constraints, with checkbox indicators for boolean fields
 - Relationship navigation with breadcrumb trail and back stack
+- Resource search/filter — press `/` to filter the navigation panel
+- Scrollbar indicators when lists overflow the viewport
 - Vim keybindings (`j`/`k`/`h`/`l`) and arrow key support
 - Tab switching with `Tab` or `1`/`2`/`3`
 - Help overlay
@@ -26,19 +28,18 @@ Navigate your domains, resources, attributes, actions, and relationships — wit
 ## UI Layout
 
 ```
-┌─ Navigation ─────────┐ ┌─ Accounts.User ─────────────────────┐
-│                       │ │                                      │
-│  Accounts             │ │  [1:Attributes]  2:Actions  3:Rels   │
-│    > User             │ │ ┌──────────────────────────────────┐ │
-│      Token            │ │ │ Name        Type       Required? │ │
-│  Blog                 │ │ │ ────        ────       ────────  │ │
-│                       │ │ │ :id         :uuid      auto      │ │
-│                       │ │ │ :email      :ci_string yes       │ │
-│                       │ │ │ :name       :string    no        │ │
-│                       │ │ │ :role       :atom      no        │ │
-│                       │ │ └──────────────────────────────────┘ │
-│ q:quit  ?:help        │ │ j/k:navigate  Enter:drill in  q:quit│
-└───────────────────────┘ └──────────────────────────────────────┘
+┌─ Search ─────────────┐ ┌─ Accounts.User ─────────────────────┐
+│ / search...           │ │  Attributes │ Actions │ Relationships│
+├─ Navigation ─────────┤ ├──────────────────────────────────────┤
+│  ◆ Accounts          │ │ Name        Type       Required?     │
+│    └ User ◀          │ │ ────        ────       ────────      │
+│    └ Token           │ │ :id         :uuid      🔑 auto      │▒
+│  ◆ Blog              │ │ :email      :ci_string ✓ yes        │▒
+│                      │ │ :name       :string    ○             │
+│                      │ │ :role       :atom      ○             │
+│                      │ │                                      │
+└──────────────────────┘ └──────────────────────────────────────┘
+ j/k navigate  / search  Enter select  ? help  q quit
 ```
 
 ## Installation
@@ -110,6 +111,14 @@ No database connection is needed. The tool reads the *shape* of your app, not it
 | `1` | Attributes tab |
 | `2` | Actions tab |
 | `3` | Relationships tab |
+
+### Search
+
+| Key | Action |
+|-----|--------|
+| `/` | Start filtering resources |
+| `Enter` | Accept filter |
+| `Esc` | Clear filter and cancel |
 
 ### Other
 

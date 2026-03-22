@@ -13,14 +13,15 @@ defmodule AshTui.App do
   alias ExRatatui.Layout
   alias ExRatatui.Layout.Rect
   alias ExRatatui.Style
-  alias ExRatatui.Widgets.{Block, Paragraph}
+  alias ExRatatui.Widgets.{Block, Paragraph, Tabs}
 
   # ── Callbacks ──────────────────────────────────────────────
 
   @impl true
   def mount(opts) do
     state = Keyword.fetch!(opts, :state)
-    {:ok, state}
+    search_input = ExRatatui.text_input_new()
+    {:ok, %{state | search_input: search_input}}
   end
 
   @impl true
@@ -37,7 +38,7 @@ defmodule AshTui.App do
   @impl true
   def handle_event(
         %ExRatatui.Event.Key{code: "q", kind: "press"},
-        %{show_help: false, detail_overlay: nil} = state
+        %{show_help: false, detail_overlay: nil, searching: false} = state
       ) do
     {:stop, state}
   end
@@ -121,23 +122,10 @@ defmodule AshTui.App do
   end
 
   defp render_tabs(state, rect) do
-    tab_defs = [
-      {:attributes, "Attributes"},
-      {:actions, "Actions"},
-      {:relationships, "Relationships"}
-    ]
+    tab_titles = ["Attributes", "Actions", "Relationships"]
 
-    text =
-      tab_defs
-      |> Enum.map_join("  ", fn {tab, label} ->
-        if tab == state.current_tab do
-          "[#{label}]"
-        else
-          " #{label} "
-        end
-      end)
-
-    tab_style = %Style{fg: :white, modifiers: [:bold]}
+    tab_index =
+      Enum.find_index([:attributes, :actions, :relationships], &(&1 == state.current_tab))
 
     detail_border = Theme.border_style(state.focus == :detail)
 
@@ -149,9 +137,11 @@ defmodule AshTui.App do
         " No resource selected "
       end
 
-    tab_bar = %Paragraph{
-      text: "  #{text}",
-      style: tab_style,
+    tab_bar = %Tabs{
+      titles: tab_titles,
+      selected: tab_index,
+      style: %Style{fg: :white},
+      highlight_style: %Style{fg: Theme.gold(), modifiers: [:bold]},
       block: %Block{
         title: resource_title,
         borders: [:all],
@@ -173,11 +163,14 @@ defmodule AshTui.App do
 
   defp render_footer(state, rect) do
     text =
-      case state.focus do
-        :nav ->
-          " j/k/\u{2191}\u{2193} navigate  \u{23CE} select  h/l/\u{2190}\u{2192} panels  \u{21E5} tabs  ? help  q quit"
+      cond do
+        state.searching ->
+          " type to filter  \u{23CE} confirm  Esc cancel"
 
-        :detail ->
+        state.focus == :nav ->
+          " j/k/\u{2191}\u{2193} navigate  \u{23CE} select  h/l/\u{2190}\u{2192} panels  \u{21E5} tabs  / search  ? help  q quit"
+
+        state.focus == :detail ->
           " j/k/\u{2191}\u{2193} navigate  \u{23CE} select  h/l/\u{2190}\u{2192} panels  \u{21E5} tabs  Esc back  ? help  q quit"
       end
 
@@ -217,6 +210,11 @@ defmodule AshTui.App do
     \u{2500}\u{2500}\u{2500} Relationships \u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}
       \u{23CE} Enter      Navigate to destination resource
       Esc           Return to previous resource
+
+    \u{2500}\u{2500}\u{2500} Search \u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}
+      /             Start filtering resources
+      \u{23CE} Enter      Accept filter
+      Esc           Clear filter and cancel
 
     \u{2500}\u{2500}\u{2500} Other \u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}
       ?             Toggle this help

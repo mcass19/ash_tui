@@ -20,13 +20,15 @@ defmodule AshTui.State do
     :domains,
     :current_domain,
     :current_resource,
+    :search_input,
     current_tab: :attributes,
     nav_selected: 0,
     detail_selected: 0,
     focus: :nav,
     nav_stack: [],
     show_help: false,
-    detail_overlay: nil
+    detail_overlay: nil,
+    searching: false
   ]
 
   @type tab :: :attributes | :actions | :relationships
@@ -41,7 +43,9 @@ defmodule AshTui.State do
           focus: :nav | :detail,
           nav_stack: [{atom(), atom(), tab()}],
           show_help: boolean(),
-          detail_overlay: AttributeInfo.t() | nil
+          detail_overlay: AttributeInfo.t() | nil,
+          search_input: reference() | nil,
+          searching: boolean()
         }
 
   @tabs [:attributes, :actions, :relationships]
@@ -124,16 +128,41 @@ defmodule AshTui.State do
       MyApp.Accounts.User
   """
   @spec nav_items(t()) :: [{:domain, DomainInfo.t()} | {:resource, ResourceInfo.t()}]
-  def nav_items(%__MODULE__{domains: domains, current_domain: current_domain}) do
+  def nav_items(%__MODULE__{domains: domains, current_domain: current_domain} = state) do
+    query = search_query(state)
+
     Enum.flat_map(domains, fn domain ->
       domain_item = {:domain, domain}
 
       if current_domain && domain.name == current_domain.name do
-        resource_items = Enum.map(domain.resources, &{:resource, &1})
+        resource_items =
+          domain.resources
+          |> maybe_filter_resources(query)
+          |> Enum.map(&{:resource, &1})
+
         [domain_item | resource_items]
       else
         [domain_item]
       end
+    end)
+  end
+
+  defp search_query(%__MODULE__{search_input: nil}), do: ""
+
+  defp search_query(%__MODULE__{search_input: ref}) do
+    ExRatatui.text_input_get_value(ref)
+  end
+
+  defp maybe_filter_resources(resources, ""), do: resources
+
+  defp maybe_filter_resources(resources, query) do
+    downcased = String.downcase(query)
+
+    Enum.filter(resources, fn resource ->
+      resource.name
+      |> Format.short_name()
+      |> String.downcase()
+      |> String.contains?(downcased)
     end)
   end
 
@@ -238,6 +267,20 @@ defmodule AshTui.State do
     state
   end
 
+  # Search mode key handling
+  def handle_key(%__MODULE__{searching: true} = state, "esc") do
+    clear_search(state)
+  end
+
+  def handle_key(%__MODULE__{searching: true} = state, "enter") do
+    %{state | searching: false, focus: :nav, nav_selected: 0}
+  end
+
+  def handle_key(%__MODULE__{searching: true, search_input: ref} = state, key) do
+    ExRatatui.text_input_handle_key(ref, key)
+    %{state | nav_selected: 0}
+  end
+
   def handle_key(state, "?") do
     %{state | show_help: true}
   end
@@ -274,6 +317,10 @@ defmodule AshTui.State do
 
   def handle_key(state, key) when key in ["l", "right"] do
     %{state | focus: :detail}
+  end
+
+  def handle_key(%__MODULE__{search_input: ref} = state, "/") when not is_nil(ref) do
+    %{state | searching: true, focus: :nav}
   end
 
   def handle_key(state, _key), do: state
@@ -406,6 +453,13 @@ defmodule AshTui.State do
   defp switch_tab(state, tab) when tab in @tabs do
     %{state | current_tab: tab, detail_selected: 0}
   end
+
+  defp clear_search(%__MODULE__{search_input: ref} = state) when not is_nil(ref) do
+    ExRatatui.text_input_set_value(ref, "")
+    %{state | searching: false, nav_selected: 0}
+  end
+
+  defp clear_search(state), do: %{state | searching: false}
 
   # ── Helpers ──────────────────────────────────────────────────
 

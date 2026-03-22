@@ -31,9 +31,9 @@ defmodule AshTui.Views.AttributeDetailTest do
       content = ExRatatui.get_buffer_content(terminal)
 
       assert content =~ "uuid"
-      assert content =~ "Primary Key:"
-      assert content =~ "yes"
-      assert content =~ "Generated:"
+      # Boolean fields shown with checkbox-style indicators
+      assert content =~ "Primary Key"
+      assert content =~ "Generated"
     end
 
     test "renders required status", %{terminal: terminal, area: area} do

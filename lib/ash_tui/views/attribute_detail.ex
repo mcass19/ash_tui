@@ -36,9 +36,12 @@ defmodule AshTui.Views.AttributeDetail do
         "  Name:         #{attr.name}",
         "  Type:         #{Format.format_type(attr.type)}",
         "  Required:     #{format_required(attr)}",
-        "  Primary Key:  #{yes_no(attr.primary_key?)}",
-        "  Generated:    #{yes_no(attr.generated?)}"
+        "",
+        "  #{checkbox(attr.primary_key?)} Primary Key",
+        "  #{checkbox(attr.generated?)} Generated",
+        "  #{checkbox(attr.allow_nil?)} Allow Nil"
       ] ++
+        [""] ++
         constraint_lines ++
         [
           "",
@@ -70,12 +73,12 @@ defmodule AshTui.Views.AttributeDetail do
     [{%Clear{}, overlay_rect}, {widget, overlay_rect}]
   end
 
+  defp checkbox(true), do: "[\u{2713}]"
+  defp checkbox(false), do: "[ ]"
+
   defp format_required(%{primary_key?: true}), do: "primary key"
   defp format_required(%{allow_nil?: false}), do: "yes"
   defp format_required(_), do: "no"
-
-  defp yes_no(true), do: "yes"
-  defp yes_no(false), do: "no"
 
   defp format_constraint({:trim?, true}), do: "trim"
   defp format_constraint({:trim?, false}), do: "!trim"

@@ -8,7 +8,7 @@ defmodule AshTui.Views.ActionsTab do
   alias AshTui.State
   alias AshTui.Theme
   alias ExRatatui.Layout.Rect
-  alias ExRatatui.Widgets.{Block, Table}
+  alias ExRatatui.Widgets.{Block, Scrollbar, Table}
 
   @header ["Name", "Type", "Primary?", "Arguments"]
   @widths [{:min, 12}, {:length, 14}, {:length, 9}, {:min, 10}]
@@ -53,7 +53,26 @@ defmodule AshTui.Views.ActionsTab do
       }
     }
 
-    [{table, rect}]
+    viewport_h = max(rect.height - 3, 1)
+    row_count = length(rows)
+
+    scrollbar_widgets =
+      if row_count > viewport_h and selected != nil do
+        [
+          {%Scrollbar{
+             orientation: :vertical_right,
+             content_length: row_count,
+             position: selected,
+             viewport_content_length: viewport_h,
+             thumb_style: Theme.focused_border_style(),
+             track_style: Theme.unfocused_border_style()
+           }, rect}
+        ]
+      else
+        []
+      end
+
+    [{table, rect}] ++ scrollbar_widgets
   end
 
   defp format_type(:create), do: "\u{FF0B} create"

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Bump `ex_ratatui` dependency from `~> 0.4.2` to `~> 0.5.0`
+- Replace hand-rolled Paragraph tab bar with the proper `Tabs` widget
+- Boolean fields in attribute detail overlay (Primary Key, Generated, Allow Nil) now render with checkbox-style indicators (`[✓]`/`[ ]`) instead of key-value text
+
+### Added
+
+- Search/filter for the navigation panel — press `/` to activate, type to filter resources, `Enter` to confirm, `Esc` to clear
+- `Scrollbar` on the navigation list and all three detail tables when content overflows the viewport
+
 ## [0.1.1] - 2026-03-09
 
 ## Fixed

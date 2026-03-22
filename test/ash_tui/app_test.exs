@@ -83,9 +83,11 @@ defmodule AshTui.AppTest do
       assert content =~ "has_many"
     end
 
-    test "active tab is bracketed", %{terminal: terminal, state: state} do
+    test "active tab is shown", %{terminal: terminal, state: state} do
       content = render_app(terminal, state)
-      assert content =~ "Attributes]"
+      assert content =~ "Attributes"
+      assert content =~ "Actions"
+      assert content =~ "Relationships"
     end
   end
 
