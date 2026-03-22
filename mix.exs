@@ -4,7 +4,7 @@ defmodule AshTui.MixProject do
   @description "Terminal-based interactive explorer for Ash Framework applications"
   @source_url "https://github.com/mcass19/ash_tui"
   @changelog_url @source_url <> "/blob/main/CHANGELOG.md"
-  @version "0.1.1"
+  @version "0.2.0"
 
   def project do
     [
