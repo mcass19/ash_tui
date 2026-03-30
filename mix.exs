@@ -11,7 +11,7 @@ defmodule AshTui.MixProject do
       app: :ash_tui,
       description: @description,
       version: @version,
-      elixir: "~> 1.18",
+      elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),

@@ -19,7 +19,7 @@ cd ash_tui
 
 2. Install dependencies:
 
-- **Elixir** 1.18+ and **Erlang/OTP** 27+
+- **Elixir** 1.17+ and **Erlang/OTP** 26+
 
 3. Fetch deps and compile:
 
