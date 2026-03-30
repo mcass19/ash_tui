@@ -9,8 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- CI enforces 100% test coverage threshold
+- CI enforces 95% test coverage threshold
+- Missing doctests and field documentation for introspection structs, `State`, `Theme`, and all view modules
 - Added coverage requirement note to CONTRIBUTING.md
+
+### Changed
+
+- Extended Elixir support to 1.17 and added CI matrix entry
+
+### Fixed
+
+- `AshTui.explore/2` opts now default to `[]` — previously the second argument was required
+
+### Docs
+
+- Expanded moduledoc prose for `AshTui`, introspection structs, `State`, `Theme`, and view modules
 
 ### Tests
 

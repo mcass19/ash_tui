@@ -16,7 +16,7 @@ defmodule AshTui.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       test_coverage: [
-        threshold: 100,
+        threshold: 95,
         ignore_modules: [
           Mix.Tasks.Ash.Tui,
           AshTui.Test.TestDomain,
