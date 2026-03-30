@@ -15,6 +15,15 @@ defmodule AshTui.MixProject do
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
+      test_coverage: [
+        threshold: 100,
+        ignore_modules: [
+          Mix.Tasks.Ash.Tui,
+          AshTui.Test.TestDomain,
+          Inspect.AshTui.Test.Author,
+          Inspect.AshTui.Test.Post
+        ]
+      ],
       package: package(),
       name: "AshTui",
       homepage_url: @source_url,

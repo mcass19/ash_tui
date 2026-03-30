@@ -102,4 +102,64 @@ defmodule AshTui.IntrospectionTest do
       assert resource.name == Test.Simple.Item
     end
   end
+
+  describe "load/1" do
+    setup do
+      Application.put_env(:ash_tui_introspection_test, :ash_domains, [AshTui.Test.TestDomain])
+
+      on_exit(fn ->
+        Application.delete_env(:ash_tui_introspection_test, :ash_domains)
+      end)
+    end
+
+    test "loads real Ash domains" do
+      domains = Introspection.load(:ash_tui_introspection_test)
+
+      assert [%DomainInfo{name: AshTui.Test.TestDomain}] = domains
+    end
+
+    test "loads resources with attributes" do
+      [domain] = Introspection.load(:ash_tui_introspection_test)
+
+      author = Enum.find(domain.resources, &(&1.name == AshTui.Test.Author))
+      assert %ResourceInfo{domain: AshTui.Test.TestDomain} = author
+      assert length(author.attributes) >= 2
+
+      id_attr = Enum.find(author.attributes, &(&1.name == :id))
+      assert %AttributeInfo{primary_key?: true} = id_attr
+
+      name_attr = Enum.find(author.attributes, &(&1.name == :name))
+      assert %AttributeInfo{allow_nil?: false} = name_attr
+    end
+
+    test "extracts primary keys from real resources" do
+      [domain] = Introspection.load(:ash_tui_introspection_test)
+      author = Enum.find(domain.resources, &(&1.name == AshTui.Test.Author))
+      assert :id in author.primary_key
+    end
+
+    test "loads actions with arguments" do
+      [domain] = Introspection.load(:ash_tui_introspection_test)
+      author = Enum.find(domain.resources, &(&1.name == AshTui.Test.Author))
+
+      create = Enum.find(author.actions, &(&1.name == :create))
+      assert %ActionInfo{type: :create} = create
+      assert length(create.arguments) >= 1
+
+      email_arg = Enum.find(create.arguments, &(&1.name == :email))
+      assert email_arg.allow_nil? == false
+    end
+
+    test "loads relationships" do
+      [domain] = Introspection.load(:ash_tui_introspection_test)
+      author = Enum.find(domain.resources, &(&1.name == AshTui.Test.Author))
+
+      posts_rel = Enum.find(author.relationships, &(&1.name == :posts))
+      assert %RelationshipInfo{type: :has_many, destination: AshTui.Test.Post} = posts_rel
+    end
+
+    test "returns empty list when no domains configured" do
+      assert Introspection.load(:ash_tui_unconfigured_app) == []
+    end
+  end
 end

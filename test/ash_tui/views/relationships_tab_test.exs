@@ -91,10 +91,112 @@ defmodule AshTui.Views.RelationshipsTabTest do
       assert [["No resource selected", "", "", ""]] = table.rows
     end
 
+    test "renders has_one type", %{terminal: terminal, rect: rect} do
+      domains =
+        AshTui.Introspection.from_data([
+          %{
+            name: Test.HasOne,
+            resources: [
+              %{
+                name: Test.HasOne.User,
+                attributes: [],
+                actions: [],
+                relationships: [
+                  %{name: :profile, type: :has_one, destination: Test.HasOne.Profile}
+                ]
+              }
+            ]
+          }
+        ])
+
+      state = State.new(domains) |> Map.put(:current_tab, :relationships)
+      widgets = RelationshipsTab.render(state, rect)
+      :ok = ExRatatui.draw(terminal, widgets)
+      content = ExRatatui.get_buffer_content(terminal)
+
+      assert content =~ "has_one"
+    end
+
+    test "renders many_to_many type", %{terminal: terminal, rect: rect} do
+      domains =
+        AshTui.Introspection.from_data([
+          %{
+            name: Test.M2M,
+            resources: [
+              %{
+                name: Test.M2M.Post,
+                attributes: [],
+                actions: [],
+                relationships: [
+                  %{name: :tags, type: :many_to_many, destination: Test.M2M.Tag}
+                ]
+              }
+            ]
+          }
+        ])
+
+      state = State.new(domains) |> Map.put(:current_tab, :relationships)
+      widgets = RelationshipsTab.render(state, rect)
+      :ok = ExRatatui.draw(terminal, widgets)
+      content = ExRatatui.get_buffer_content(terminal)
+
+      assert content =~ "many_to_many"
+    end
+
+    test "renders unknown relationship type as string", %{terminal: terminal, rect: rect} do
+      domains =
+        AshTui.Introspection.from_data([
+          %{
+            name: Test.Unknown,
+            resources: [
+              %{
+                name: Test.Unknown.Item,
+                attributes: [],
+                actions: [],
+                relationships: [
+                  %{name: :custom, type: :custom_type, destination: Test.Unknown.Other}
+                ]
+              }
+            ]
+          }
+        ])
+
+      state = State.new(domains) |> Map.put(:current_tab, :relationships)
+      widgets = RelationshipsTab.render(state, rect)
+      :ok = ExRatatui.draw(terminal, widgets)
+      content = ExRatatui.get_buffer_content(terminal)
+
+      assert content =~ "custom_type"
+    end
+
     test "does not show selection when focus is nav", %{state: state, rect: rect} do
       state = %{state | focus: :nav}
       [{table, _}] = RelationshipsTab.render(state, rect)
       assert table.selected == nil
+    end
+
+    test "renders scrollbar when rows exceed viewport", %{terminal: terminal} do
+      rels =
+        for i <- 1..10,
+            do: %{name: :"rel_#{i}", type: :has_many, destination: Test.Scroll.Target}
+
+      domains =
+        AshTui.Introspection.from_data([
+          %{
+            name: Test.Scroll,
+            resources: [
+              %{name: Test.Scroll.Item, attributes: [], actions: [], relationships: rels}
+            ]
+          }
+        ])
+
+      state = State.new(domains) |> Map.merge(%{current_tab: :relationships, focus: :detail})
+      rect = %Rect{x: 0, y: 0, width: 70, height: 6}
+      widgets = RelationshipsTab.render(state, rect)
+      :ok = ExRatatui.draw(terminal, widgets)
+      content = ExRatatui.get_buffer_content(terminal)
+
+      assert content =~ "rel_1"
     end
   end
 end

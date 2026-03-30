@@ -86,6 +86,88 @@ defmodule AshTui.Views.AttributesTabTest do
       assert table.selected == 2
     end
 
+    test "renders primary key only indicator (not generated)", %{terminal: terminal, rect: rect} do
+      domains =
+        AshTui.Introspection.from_data([
+          %{
+            name: Test.PKOnly,
+            resources: [
+              %{
+                name: Test.PKOnly.Item,
+                attributes: [
+                  %{name: :id, type: :integer, primary_key?: true, generated?: false}
+                ],
+                actions: [],
+                relationships: []
+              }
+            ]
+          }
+        ])
+
+      state = State.new(domains)
+      widgets = AttributesTab.render(state, rect)
+      :ok = ExRatatui.draw(terminal, widgets)
+      content = ExRatatui.get_buffer_content(terminal)
+
+      # Primary key without generated shows just the key emoji (no "auto")
+      assert content =~ "\u{1F511}"
+      refute content =~ "auto"
+    end
+
+    test "renders generated only indicator (not primary key)", %{terminal: terminal, rect: rect} do
+      domains =
+        AshTui.Introspection.from_data([
+          %{
+            name: Test.GenOnly,
+            resources: [
+              %{
+                name: Test.GenOnly.Item,
+                attributes: [
+                  %{
+                    name: :inserted_at,
+                    type: :utc_datetime,
+                    generated?: true,
+                    primary_key?: false
+                  }
+                ],
+                actions: [],
+                relationships: []
+              }
+            ]
+          }
+        ])
+
+      state = State.new(domains)
+      widgets = AttributesTab.render(state, rect)
+      :ok = ExRatatui.draw(terminal, widgets)
+      content = ExRatatui.get_buffer_content(terminal)
+
+      assert content =~ "\u{2699}"
+      assert content =~ "auto"
+    end
+
+    test "renders scrollbar when rows exceed viewport", %{terminal: terminal} do
+      attrs = for i <- 1..20, do: %{name: :"field_#{i}", type: :string}
+
+      domains =
+        AshTui.Introspection.from_data([
+          %{
+            name: Test.Many,
+            resources: [
+              %{name: Test.Many.Item, attributes: attrs, actions: [], relationships: []}
+            ]
+          }
+        ])
+
+      state = State.new(domains) |> Map.put(:focus, :detail)
+      rect = %Rect{x: 0, y: 0, width: 60, height: 8}
+      widgets = AttributesTab.render(state, rect)
+      :ok = ExRatatui.draw(terminal, widgets)
+      content = ExRatatui.get_buffer_content(terminal)
+
+      assert content =~ "field_1"
+    end
+
     test "formats array types", %{terminal: terminal, rect: rect} do
       domains =
         AshTui.Introspection.from_data([

@@ -177,6 +177,43 @@ defmodule AshTui.Views.AttributeDetailTest do
       assert rect.y > 0
     end
 
+    test "renders trim false constraint", %{terminal: terminal, area: area} do
+      attr = %AttributeInfo{name: :raw, type: :string, constraints: [trim?: false]}
+      widgets = AttributeDetail.render(attr, area)
+      :ok = ExRatatui.draw(terminal, widgets)
+      content = ExRatatui.get_buffer_content(terminal)
+
+      assert content =~ "!trim"
+    end
+
+    test "renders precision millisecond", %{terminal: terminal, area: area} do
+      attr = %AttributeInfo{
+        name: :ts,
+        type: :utc_datetime,
+        constraints: [precision: :millisecond]
+      }
+
+      widgets = AttributeDetail.render(attr, area)
+      :ok = ExRatatui.draw(terminal, widgets)
+      content = ExRatatui.get_buffer_content(terminal)
+
+      assert content =~ "precision: millisecond"
+    end
+
+    test "renders precision second", %{terminal: terminal, area: area} do
+      attr = %AttributeInfo{
+        name: :ts,
+        type: :utc_datetime,
+        constraints: [precision: :second]
+      }
+
+      widgets = AttributeDetail.render(attr, area)
+      :ok = ExRatatui.draw(terminal, widgets)
+      content = ExRatatui.get_buffer_content(terminal)
+
+      assert content =~ "precision: second"
+    end
+
     test "renders generic constraint with key-value", %{terminal: terminal, area: area} do
       attr = %AttributeInfo{
         name: :score,

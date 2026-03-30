@@ -154,8 +154,33 @@ defmodule AshTui.AppTest do
       assert new_state.detail_overlay == attr
     end
 
+    test "q does not stop when searching", %{state: state} do
+      ref = ExRatatui.text_input_new()
+      state = %{state | searching: true, search_input: ref}
+      event = %ExRatatui.Event.Key{code: "q", kind: "press"}
+      {:noreply, new_state} = AshTui.App.handle_event(event, state)
+      # q in search mode is sent to text input, not treated as quit
+      assert new_state.nav_selected == 0
+    end
+
     test "non-key events are ignored", %{state: state} do
       {:noreply, ^state} = AshTui.App.handle_event(:some_other_event, state)
+    end
+  end
+
+  describe "render/2 - footer modes" do
+    test "footer shows search hints when in search mode", %{terminal: terminal, state: state} do
+      state = %{state | searching: true}
+      content = render_app(terminal, state)
+      assert content =~ "filter"
+      assert content =~ "confirm"
+      assert content =~ "cancel"
+    end
+  end
+
+  describe "terminate/2" do
+    test "returns :ok" do
+      assert :ok = AshTui.App.terminate(:normal, %{})
     end
   end
 end

@@ -386,6 +386,88 @@ defmodule AshTui.StateTest do
     end
   end
 
+  describe "handle_key/2 - search mode" do
+    setup %{state: state} do
+      ref = ExRatatui.text_input_new()
+      %{state: %{state | search_input: ref}}
+    end
+
+    test "/ activates search mode", %{state: state} do
+      state = State.handle_key(state, "/")
+      assert state.searching == true
+      assert state.focus == :nav
+    end
+
+    test "enter in search mode exits searching", %{state: state} do
+      state = %{state | searching: true}
+      state = State.handle_key(state, "enter")
+      assert state.searching == false
+      assert state.focus == :nav
+      assert state.nav_selected == 0
+    end
+
+    test "esc in search mode clears search text", %{state: state} do
+      ExRatatui.text_input_handle_key(state.search_input, "t")
+      state = %{state | searching: true}
+      state = State.handle_key(state, "esc")
+      assert state.searching == false
+      assert state.nav_selected == 0
+      assert ExRatatui.text_input_get_value(state.search_input) == ""
+    end
+
+    test "typing in search mode delegates to text input", %{state: state} do
+      state = %{state | searching: true}
+      state = State.handle_key(state, "a")
+      assert state.nav_selected == 0
+      assert ExRatatui.text_input_get_value(state.search_input) == "a"
+    end
+
+    test "search filters nav items by resource name", %{state: state} do
+      ExRatatui.text_input_set_value(state.search_input, "tok")
+      items = State.nav_items(state)
+      resource_names = for {:resource, r} <- items, do: r.name
+      assert Test.Accounts.Token in resource_names
+      refute Test.Accounts.User in resource_names
+    end
+  end
+
+  describe "handle_key/2 - search mode without ref" do
+    test "esc in search mode with nil search_input resets searching" do
+      state = %State{
+        domains: [],
+        current_domain: nil,
+        current_resource: nil,
+        searching: true,
+        search_input: nil
+      }
+
+      state = State.handle_key(state, "esc")
+      assert state.searching == false
+    end
+  end
+
+  describe "breadcrumb/1 - edge cases" do
+    test "shows trail without current when resource is nil", %{state: state} do
+      state = %{
+        state
+        | nav_stack: [{Test.Accounts, Test.Accounts.User, :attributes}],
+          current_resource: nil
+      }
+
+      assert State.breadcrumb(state) == "User > "
+    end
+  end
+
+  describe "pop_nav_stack - fallback" do
+    test "falls back to domain when resource not found in stack", %{state: state} do
+      state = %{state | nav_stack: [{Test.Accounts, Test.NonExistent, :actions}]}
+      state = State.handle_key(state, "esc")
+      assert state.current_domain.name == Test.Accounts
+      assert state.current_tab == :actions
+      assert state.nav_stack == []
+    end
+  end
+
   describe "handle_key/2 - edge cases" do
     test "enter in detail focus with nil resource is a no-op" do
       state = %State{
@@ -397,6 +479,24 @@ defmodule AshTui.StateTest do
       }
 
       assert State.handle_key(state, "enter") == state
+    end
+
+    test "enter on nav with out-of-bounds selection is a no-op", %{state: state} do
+      state = %{state | nav_selected: 999}
+      new_state = State.handle_key(state, "enter")
+      assert new_state.nav_selected == 999
+    end
+
+    test "enter on attributes with out-of-bounds selection is a no-op", %{state: state} do
+      state = %{state | focus: :detail, current_tab: :attributes, detail_selected: 999}
+      new_state = State.handle_key(state, "enter")
+      assert new_state.detail_overlay == nil
+    end
+
+    test "enter on relationships with out-of-bounds selection is a no-op", %{state: state} do
+      state = %{state | focus: :detail, current_tab: :relationships, detail_selected: 999}
+      new_state = State.handle_key(state, "enter")
+      assert new_state.nav_stack == []
     end
 
     test "enter on relationship with non-existent destination is a no-op", %{state: state} do

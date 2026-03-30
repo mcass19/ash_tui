@@ -99,10 +99,56 @@ defmodule AshTui.Views.ActionsTabTest do
       assert content =~ "update"
     end
 
+    test "renders unknown action type as string", %{terminal: terminal, rect: rect} do
+      domains =
+        AshTui.Introspection.from_data([
+          %{
+            name: Test.Custom,
+            resources: [
+              %{
+                name: Test.Custom.Item,
+                attributes: [],
+                actions: [%{name: :custom, type: :generic, primary?: false}],
+                relationships: []
+              }
+            ]
+          }
+        ])
+
+      state = State.new(domains) |> Map.put(:current_tab, :actions)
+      widgets = ActionsTab.render(state, rect)
+      :ok = ExRatatui.draw(terminal, widgets)
+      content = ExRatatui.get_buffer_content(terminal)
+
+      assert content =~ "generic"
+    end
+
     test "does not show selection when focus is nav", %{state: state, rect: rect} do
       state = %{state | focus: :nav}
       [{table, _}] = ActionsTab.render(state, rect)
       assert table.selected == nil
+    end
+
+    test "renders scrollbar when rows exceed viewport", %{terminal: terminal} do
+      actions = for i <- 1..20, do: %{name: :"action_#{i}", type: :read, primary?: false}
+
+      domains =
+        AshTui.Introspection.from_data([
+          %{
+            name: Test.ManyActions,
+            resources: [
+              %{name: Test.ManyActions.Item, attributes: [], actions: actions, relationships: []}
+            ]
+          }
+        ])
+
+      state = State.new(domains) |> Map.merge(%{current_tab: :actions, focus: :detail})
+      rect = %Rect{x: 0, y: 0, width: 70, height: 8}
+      widgets = ActionsTab.render(state, rect)
+      :ok = ExRatatui.draw(terminal, widgets)
+      content = ExRatatui.get_buffer_content(terminal)
+
+      assert content =~ "action_1"
     end
   end
 end

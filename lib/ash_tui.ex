@@ -25,9 +25,14 @@ defmodule AshTui do
 
   Loads all Ash domains and resources via compile-time introspection,
   then starts an interactive terminal interface.
+
+  ## Options
+
+  Any extra options are forwarded to `AshTui.App.start_link/1`
+  (e.g. `test_mode: {80, 24}`, `name: nil`).
   """
-  @spec explore(atom()) :: :ok
-  def explore(otp_app) do
+  @spec explore(atom(), keyword()) :: :ok
+  def explore(otp_app, opts \\ []) do
     data = AshTui.Introspection.load(otp_app)
 
     if data == [] do
@@ -45,7 +50,7 @@ defmodule AshTui do
 
     state = AshTui.State.new(data)
 
-    {:ok, pid} = AshTui.App.start_link(state: state)
+    {:ok, pid} = AshTui.App.start_link([{:state, state} | opts])
 
     ref = Process.monitor(pid)
 

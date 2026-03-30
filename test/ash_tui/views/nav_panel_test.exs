@@ -77,9 +77,46 @@ defmodule AshTui.Views.NavPanelTest do
       assert content =~ "Post"
     end
 
-    test "returns single widget-rect tuple", %{state: state, rect: rect} do
+    test "returns single widget-rect tuple when no search input", %{state: state, rect: rect} do
       widgets = NavPanel.render(state, rect)
       assert [{%ExRatatui.Widgets.List{}, ^rect}] = widgets
+    end
+
+    test "renders search bar when search_input is present", %{terminal: terminal, rect: rect} do
+      ref = ExRatatui.text_input_new()
+      state = State.new(Fixtures.sample_domains()) |> Map.put(:search_input, ref)
+      widgets = NavPanel.render(state, rect)
+      :ok = ExRatatui.draw(terminal, widgets)
+      content = ExRatatui.get_buffer_content(terminal)
+
+      assert content =~ "Search"
+      assert content =~ "Navigation"
+    end
+
+    test "search bar highlights when actively searching", %{terminal: terminal, rect: rect} do
+      ref = ExRatatui.text_input_new()
+
+      state =
+        Fixtures.sample_domains()
+        |> State.new()
+        |> Map.merge(%{search_input: ref, searching: true})
+
+      widgets = NavPanel.render(state, rect)
+      :ok = ExRatatui.draw(terminal, widgets)
+      content = ExRatatui.get_buffer_content(terminal)
+
+      assert content =~ "Search"
+    end
+
+    test "renders scrollbar when items exceed viewport", %{terminal: terminal} do
+      # Use a small rect so 4 items exceed viewport_h (5 - 2 borders = 3)
+      rect = %Rect{x: 0, y: 0, width: 40, height: 5}
+      state = State.new(Fixtures.sample_domains())
+      widgets = NavPanel.render(state, rect)
+      :ok = ExRatatui.draw(terminal, widgets)
+      content = ExRatatui.get_buffer_content(terminal)
+
+      assert content =~ "Navigation"
     end
   end
 end
