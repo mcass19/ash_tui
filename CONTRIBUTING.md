@@ -34,6 +34,10 @@ mix compile
 mix test
 ```
 
+> **Note:** CI enforces **100% test coverage**. If you add new public functions
+> or branches, make sure to add corresponding tests. Run `mix test --cover`
+> locally to check before pushing.
+
 ## Pull Requests
 
 Before submitting a PR, make sure the following pass:

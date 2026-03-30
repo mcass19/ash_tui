@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- CI enforces 100% test coverage threshold
+- Added coverage requirement note to CONTRIBUTING.md
+
+### Tests
+
+- Bumped test coverage to 100% — added introspection, state, view, and app tests
+
 ## [0.2.0] - 2026-03-22
 
 ### Changed

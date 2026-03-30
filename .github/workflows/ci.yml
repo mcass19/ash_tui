@@ -54,4 +54,8 @@ jobs:
       - run: mix dialyzer --format github
         if: ${{ matrix.lint }}
 
+      - run: mix test --cover
+        if: ${{ matrix.lint }}
+
       - run: mix test
+        if: ${{ ! matrix.lint }}
