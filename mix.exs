@@ -103,6 +103,9 @@ defmodule AshTui.MixProject do
           AshTui.Views.AttributeDetail,
           AshTui.Views.ActionsTab,
           AshTui.Views.RelationshipsTab
+        ],
+        "Mix Tasks": [
+          Mix.Tasks.Ash.Tui
         ]
       ]
     ]

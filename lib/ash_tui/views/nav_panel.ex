@@ -18,6 +18,28 @@ defmodule AshTui.Views.NavPanel do
 
   @doc """
   Renders the navigation panel with domain/resource tree and search input.
+
+  Returns a list of `{widget, rect}` tuples containing the navigation list
+  (and optionally a scrollbar and search input).
+
+  ## Examples
+
+      iex> domains = AshTui.Introspection.from_data([
+      ...>   %{
+      ...>     name: MyApp.Accounts,
+      ...>     resources: [
+      ...>       %{
+      ...>         name: MyApp.Accounts.User,
+      ...>         attributes: [%{name: :id, type: :uuid, primary_key?: true}],
+      ...>         actions: [],
+      ...>         relationships: []
+      ...>       }
+      ...>     ]
+      ...>   }
+      ...> ])
+      iex> state = AshTui.State.new(domains)
+      iex> rect = %ExRatatui.Layout.Rect{x: 0, y: 0, width: 30, height: 20}
+      iex> [{%ExRatatui.Widgets.List{}, ^rect}] = AshTui.Views.NavPanel.render(state, rect)
   """
   @spec render(State.t(), Rect.t()) :: [{struct(), Rect.t()}]
   def render(%{search_input: nil} = state, rect) do

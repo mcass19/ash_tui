@@ -32,7 +32,7 @@ defmodule AshTui do
   (e.g. `test_mode: {80, 24}`, `name: nil`).
   """
   @spec explore(atom(), keyword()) :: :ok
-  def explore(otp_app, opts \\ []) do
+  def explore(otp_app, opts) do
     data = AshTui.Introspection.load(otp_app)
 
     if data == [] do

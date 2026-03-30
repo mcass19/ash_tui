@@ -40,6 +40,6 @@ defmodule Mix.Tasks.Ash.Tui do
 
     Mix.Task.run("app.start")
 
-    AshTui.explore(otp_app)
+    AshTui.explore(otp_app, [])
   end
 end

@@ -19,6 +19,30 @@ defmodule AshTui.Views.RelationshipsTab do
 
   @doc """
   Renders the relationships table for the current resource.
+
+  Returns a list of `{widget, rect}` tuples containing the relationships table
+  (and optionally a scrollbar when content overflows). Relationships are
+  navigable — pressing Enter on a row jumps to the destination resource.
+
+  ## Examples
+
+      iex> domains = AshTui.Introspection.from_data([
+      ...>   %{
+      ...>     name: MyApp.Accounts,
+      ...>     resources: [
+      ...>       %{
+      ...>         name: MyApp.Accounts.User,
+      ...>         attributes: [%{name: :id, type: :uuid, primary_key?: true}],
+      ...>         actions: [],
+      ...>         relationships: [%{name: :posts, type: :has_many, destination: MyApp.Blog.Post}]
+      ...>       }
+      ...>     ]
+      ...>   }
+      ...> ])
+      iex> state = AshTui.State.new(domains) |> Map.put(:current_tab, :relationships)
+      iex> rect = %ExRatatui.Layout.Rect{x: 0, y: 0, width: 60, height: 20}
+      iex> [{%ExRatatui.Widgets.Table{}, ^rect}] =
+      ...>   AshTui.Views.RelationshipsTab.render(state, rect)
   """
   @spec render(State.t(), Rect.t()) :: [{struct(), Rect.t()}]
   def render(%{current_resource: nil}, rect) do

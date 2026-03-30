@@ -253,6 +253,53 @@ defmodule AshTui.State do
 
   @doc """
   Processes a key press and returns the updated state.
+
+  Handles vim-style navigation (`j`/`k`/`h`/`l`), tab switching (`tab`, `1`/`2`/`3`),
+  enter/esc for selection and back-navigation, `?` for help, and `/` for search.
+
+  ## Examples
+
+      iex> domains = AshTui.Introspection.from_data([
+      ...>   %{
+      ...>     name: MyApp.Accounts,
+      ...>     resources: [
+      ...>       %{
+      ...>         name: MyApp.Accounts.User,
+      ...>         attributes: [%{name: :id, type: :uuid, primary_key?: true}],
+      ...>         actions: [],
+      ...>         relationships: []
+      ...>       }
+      ...>     ]
+      ...>   }
+      ...> ])
+      iex> state = AshTui.State.new(domains)
+      iex> state = AshTui.State.handle_key(state, "?")
+      iex> state.show_help
+      true
+      iex> state = AshTui.State.handle_key(state, "any")
+      iex> state.show_help
+      false
+
+      iex> domains = AshTui.Introspection.from_data([
+      ...>   %{
+      ...>     name: MyApp.Accounts,
+      ...>     resources: [
+      ...>       %{
+      ...>         name: MyApp.Accounts.User,
+      ...>         attributes: [%{name: :id, type: :uuid, primary_key?: true}],
+      ...>         actions: [],
+      ...>         relationships: []
+      ...>       }
+      ...>     ]
+      ...>   }
+      ...> ])
+      iex> state = AshTui.State.new(domains)
+      iex> state = AshTui.State.handle_key(state, "l")
+      iex> state.focus
+      :detail
+      iex> state = AshTui.State.handle_key(state, "h")
+      iex> state.focus
+      :nav
   """
   @spec handle_key(t(), String.t()) :: t()
   def handle_key(%__MODULE__{show_help: true} = state, _key) do

@@ -74,24 +74,6 @@ defmodule AshTuiTest do
     after
       Application.delete_env(:ash_tui_test_app, :ash_domains)
     end
-
-    test "explore/1 default opts clause is callable" do
-      Process.flag(:trap_exit, true)
-
-      ExUnit.CaptureIO.capture_io(:stderr, fn ->
-        assert_raise MatchError, fn ->
-          AshTui.explore(:ash_tui_not_configured)
-        end
-      end)
-    after
-      Process.flag(:trap_exit, false)
-
-      receive do
-        {:EXIT, _, _} -> :ok
-      after
-        0 -> :ok
-      end
-    end
   end
 
   defp await_registered(name, attempts \\ 200) do

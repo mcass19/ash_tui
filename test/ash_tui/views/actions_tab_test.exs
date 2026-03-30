@@ -7,6 +7,8 @@ defmodule AshTui.Views.ActionsTabTest do
   alias ExRatatui.Layout.Rect
   alias ExRatatui.Native
 
+  doctest AshTui.Views.ActionsTab
+
   setup do
     terminal = ExRatatui.init_test_terminal(70, 15)
     on_exit(fn -> Native.restore_terminal(terminal) end)

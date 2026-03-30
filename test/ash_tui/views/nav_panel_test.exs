@@ -7,6 +7,8 @@ defmodule AshTui.Views.NavPanelTest do
   alias ExRatatui.Layout.Rect
   alias ExRatatui.Native
 
+  doctest AshTui.Views.NavPanel
+
   setup do
     terminal = ExRatatui.init_test_terminal(40, 20)
     on_exit(fn -> Native.restore_terminal(terminal) end)

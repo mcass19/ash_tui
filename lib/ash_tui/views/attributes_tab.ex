@@ -16,6 +16,29 @@ defmodule AshTui.Views.AttributesTab do
 
   @doc """
   Renders the attributes table for the current resource.
+
+  Returns a list of `{widget, rect}` tuples containing the attributes table
+  (and optionally a scrollbar when content overflows).
+
+  ## Examples
+
+      iex> domains = AshTui.Introspection.from_data([
+      ...>   %{
+      ...>     name: MyApp.Accounts,
+      ...>     resources: [
+      ...>       %{
+      ...>         name: MyApp.Accounts.User,
+      ...>         attributes: [%{name: :id, type: :uuid, primary_key?: true}],
+      ...>         actions: [],
+      ...>         relationships: []
+      ...>       }
+      ...>     ]
+      ...>   }
+      ...> ])
+      iex> state = AshTui.State.new(domains)
+      iex> rect = %ExRatatui.Layout.Rect{x: 0, y: 0, width: 60, height: 20}
+      iex> [{%ExRatatui.Widgets.Table{rows: [["id", "uuid", _]]}, ^rect}] =
+      ...>   AshTui.Views.AttributesTab.render(state, rect)
   """
   @spec render(State.t(), Rect.t()) :: [{struct(), Rect.t()}]
   def render(%{current_resource: nil}, rect) do

@@ -15,6 +15,23 @@ defmodule AshTui.Views.AttributeDetail do
 
   Shows name, type, required status, primary key, generated flag, and constraints.
   The overlay is rendered on top of the existing layout and dismissed with Esc.
+
+  Returns a `[{%Clear{}, rect}, {%Paragraph{}, rect}]` pair — the clear widget
+  resets the area before the detail overlay is drawn.
+
+  ## Examples
+
+      iex> attr = %AshTui.Introspection.AttributeInfo{
+      ...>   name: :email,
+      ...>   type: :string,
+      ...>   allow_nil?: false,
+      ...>   primary_key?: false,
+      ...>   generated?: false,
+      ...>   constraints: [trim?: true]
+      ...> }
+      iex> rect = %ExRatatui.Layout.Rect{x: 0, y: 0, width: 80, height: 24}
+      iex> [{%ExRatatui.Widgets.Clear{}, _}, {%ExRatatui.Widgets.Paragraph{}, _}] =
+      ...>   AshTui.Views.AttributeDetail.render(attr, rect)
   """
   @spec render(AttributeInfo.t(), Rect.t()) :: [{struct(), Rect.t()}]
   def render(attr, area) do

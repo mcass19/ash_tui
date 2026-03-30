@@ -15,6 +15,29 @@ defmodule AshTui.Views.ActionsTab do
 
   @doc """
   Renders the actions table for the current resource.
+
+  Returns a list of `{widget, rect}` tuples containing the actions table
+  (and optionally a scrollbar when content overflows).
+
+  ## Examples
+
+      iex> domains = AshTui.Introspection.from_data([
+      ...>   %{
+      ...>     name: MyApp.Accounts,
+      ...>     resources: [
+      ...>       %{
+      ...>         name: MyApp.Accounts.User,
+      ...>         attributes: [%{name: :id, type: :uuid, primary_key?: true}],
+      ...>         actions: [%{name: :read, type: :read, primary?: true}],
+      ...>         relationships: []
+      ...>       }
+      ...>     ]
+      ...>   }
+      ...> ])
+      iex> state = AshTui.State.new(domains) |> Map.put(:current_tab, :actions)
+      iex> rect = %ExRatatui.Layout.Rect{x: 0, y: 0, width: 60, height: 20}
+      iex> [{%ExRatatui.Widgets.Table{}, ^rect}] =
+      ...>   AshTui.Views.ActionsTab.render(state, rect)
   """
   @spec render(State.t(), Rect.t()) :: [{struct(), Rect.t()}]
   def render(%{current_resource: nil}, rect) do

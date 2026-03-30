@@ -6,6 +6,8 @@ defmodule AshTui.Views.AttributeDetailTest do
   alias ExRatatui.Layout.Rect
   alias ExRatatui.Native
 
+  doctest AshTui.Views.AttributeDetail
+
   setup do
     terminal = ExRatatui.init_test_terminal(80, 24)
     on_exit(fn -> Native.restore_terminal(terminal) end)
