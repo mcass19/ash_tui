@@ -9,12 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **SSH transport** — serve the explorer over SSH via `mix ash.tui --ssh` or `AshTui.explore(:app, transport: :ssh)`. Multiple clients can connect simultaneously, each with an isolated session. Defaults to port 2222 with password auth (`ash` / `tui`). Custom port, credentials, and all `:ssh.daemon/2` options are supported
+- **Erlang distribution transport** — start a listener via `mix ash.tui --distributed` or `AshTui.explore(:app, transport: :distributed)`. Remote BEAM nodes attach with `ExRatatui.Distributed.attach(node, AshTui.App)` — useful for headless servers and Nerves devices
+- `--ssh`, `--distributed`, and `--port` flags on `mix ash.tui`
+- Transport banner messages printed to the console when starting SSH or distributed mode
 - CI enforces 95% test coverage threshold
 - Missing doctests and field documentation for introspection structs, `State`, `Theme`, and all view modules
 - Added coverage requirement note to CONTRIBUTING.md
 
 ### Changed
 
+- Bump `ex_ratatui` dependency from `~> 0.5.0` to `~> 0.7`
 - Extended Elixir support to 1.17 and added CI matrix entry
 
 ### Fixed
@@ -23,7 +28,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Docs
 
-- Expanded moduledoc prose for `AshTui`, introspection structs, `State`, `Theme`, and view modules
+- README now documents SSH and Erlang distribution transports with usage examples
+- README installation section updated to cover non-dev usage for production transports
+- Added cross-references to ExRatatui's SSH and distribution transport guides
+- Expanded moduledoc prose for `AshTui`, `AshTui.App`, introspection structs, `State`, `Theme`, and view modules
 
 ### Tests
 

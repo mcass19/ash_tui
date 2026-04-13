@@ -24,6 +24,8 @@ Navigate your domains, resources, attributes, actions, and relationships — wit
 - Help overlay
 - No database connection needed — reads compile-time metadata only
 - `mix ash.tui` task for instant launch
+- **SSH transport** — serve the explorer to remote clients over SSH, multiple simultaneous sessions
+- **Erlang distribution transport** — attach to the explorer from a remote BEAM node
 
 ## UI Layout
 
@@ -44,15 +46,24 @@ Navigate your domains, resources, attributes, actions, and relationships — wit
 
 ## Installation
 
-Add `ash_tui` to your dependencies (`:dev` only recommended):
+Add `ash_tui` to your dependencies:
 
 ```elixir
 def deps do
   [
-    {:ash_tui, "~> 0.2", only: :dev}
+    {:ash_tui, "~> 0.2"}
   ]
 end
 ```
+
+> **Tip:** For local-only exploration during development, restrict to `:dev`:
+>
+> ```elixir
+> {:ash_tui, "~> 0.3", only: :dev}
+> ```
+>
+> If you plan to use the SSH or distributed transports in production
+> (e.g. an admin TUI on a running node), include it without the `:only` restriction.
 
 ## Usage
 
@@ -74,6 +85,72 @@ You can also launch programmatically:
 AshTui.explore(:my_app)
 ```
 
+## Transports
+
+The same explorer works across three [ExRatatui](https://hexdocs.pm/ex_ratatui) transports — switch with a single flag. Each transport provides full session isolation: every connected client gets its own independent explorer state.
+
+### Local (default)
+
+Renders directly to the local terminal. This is the default when no transport flag is given.
+
+```bash
+mix ash.tui
+```
+
+### SSH
+
+Serves the explorer over SSH. Multiple clients can connect simultaneously, each with an isolated session. Useful for inspecting Ash resources on a remote server or sharing the explorer with teammates without requiring them to clone the project.
+
+```bash
+mix ash.tui --ssh
+```
+
+Then connect from another terminal:
+
+```bash
+ssh ash@localhost -p 2222
+# password: tui
+```
+
+Custom port:
+
+```bash
+mix ash.tui --ssh --port 4000
+```
+
+Programmatic usage with custom credentials:
+
+```elixir
+AshTui.explore(:my_app,
+  transport: :ssh,
+  port: 4000,
+  user_passwords: [{~c"admin", ~c"secret"}]
+)
+```
+
+See the [ExRatatui SSH guide](https://hexdocs.pm/ex_ratatui/ssh_transport.html) for the full option reference (public key auth, custom host keys, idle timeouts, etc.).
+
+### Erlang Distribution
+
+Starts a listener on the current node. Remote BEAM nodes attach over Erlang distribution — useful for headless servers, Nerves devices, or cross-architecture inspection where the remote node may not have the NIF available.
+
+```bash
+# Terminal 1 — start the listener
+elixir --sname app --cookie demo -S mix ash.tui --distributed
+
+# Terminal 2 — attach from another node
+iex --sname local --cookie demo -S mix
+iex> ExRatatui.Distributed.attach(:"app@hostname", AshTui.App)
+```
+
+Programmatic usage:
+
+```elixir
+AshTui.explore(:my_app, transport: :distributed)
+```
+
+See the [ExRatatui Distribution guide](https://hexdocs.pm/ex_ratatui/distributed_transport.html) for details on options, testing, and troubleshooting.
+
 ## How It Works
 
 AshTui uses Ash's compile-time introspection API to load your domain model:
@@ -85,10 +162,12 @@ mix ash.tui
   → Ash.Domain.Info.resources(domain)
   → Ash.Resource.Info.attributes/actions/relationships(resource)
   → Pre-loaded into navigable state struct
-  → ExRatatui.App renders it
+  → ExRatatui.App renders it (local, SSH, or distributed)
 ```
 
 No database connection is needed. The tool reads the *shape* of your app, not its data.
+
+The rendering layer is provided by [ExRatatui](https://github.com/mcass19/ex_ratatui), which bridges Elixir and Rust's [ratatui](https://ratatui.rs) via NIFs. The same `AshTui.App` module works across all three transports without changes — ExRatatui handles session isolation, event polling, and terminal management per transport.
 
 ## Keybindings
 

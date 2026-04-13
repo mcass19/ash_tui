@@ -3,6 +3,21 @@ defmodule AshTui.App do
   Main TUI application using `ExRatatui.App` behaviour.
 
   Renders the two-panel layout and delegates key handling to `AshTui.State`.
+
+  ## Transports
+
+  This module works across all three ExRatatui transports without changes:
+
+    * **Local** — `AshTui.App.start_link(state: state)` renders to the
+      local terminal.
+    * **SSH** — `AshTui.App.start_link(transport: :ssh, app_opts: [state: state], ...)`
+      serves each SSH client an isolated explorer session.
+    * **Distributed** — `AshTui.App.start_link(transport: :distributed, app_opts: [state: state])`
+      starts a listener; remote nodes attach via
+      `ExRatatui.Distributed.attach(node, AshTui.App)`.
+
+  In practice, use `AshTui.explore/2` or `mix ash.tui` which handle the
+  wiring for you.
   """
 
   use ExRatatui.App

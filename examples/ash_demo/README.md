@@ -16,8 +16,30 @@ mix deps.get
 
 ## Run
 
+### Local
+
 ```bash
 mix ash.tui
+```
+
+### SSH
+
+```bash
+mix ash.tui --ssh
+
+# then connect from another terminal:
+ssh ash@localhost -p 2222   # password: tui
+```
+
+### Erlang Distribution
+
+```bash
+# Terminal 1 — start the listener
+elixir --sname app --cookie demo -S mix ash.tui --distributed
+
+# Terminal 2 — attach from another node
+iex --sname local --cookie demo -S mix
+iex> ExRatatui.Distributed.attach(:"app@hostname", AshTui.App)
 ```
 
 ## Controls
