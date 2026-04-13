@@ -2,8 +2,8 @@ defmodule AshTui.Views.RelationshipsTabTest do
   use ExUnit.Case, async: true
 
   alias AshTui.State
-  alias AshTui.Views.RelationshipsTab
   alias AshTui.Test.Fixtures
+  alias AshTui.Views.RelationshipsTab
   alias ExRatatui.Layout.Rect
   alias ExRatatui.Native
 

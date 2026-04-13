@@ -144,7 +144,7 @@ defmodule AshTui.IntrospectionTest do
 
       create = Enum.find(author.actions, &(&1.name == :create))
       assert %ActionInfo{type: :create} = create
-      assert length(create.arguments) >= 1
+      assert create.arguments != []
 
       email_arg = Enum.find(create.arguments, &(&1.name == :email))
       assert email_arg.allow_nil? == false

@@ -2,8 +2,8 @@ defmodule AshTui.Views.AttributesTabTest do
   use ExUnit.Case, async: true
 
   alias AshTui.State
-  alias AshTui.Views.AttributesTab
   alias AshTui.Test.Fixtures
+  alias AshTui.Views.AttributesTab
   alias ExRatatui.Layout.Rect
   alias ExRatatui.Native
 

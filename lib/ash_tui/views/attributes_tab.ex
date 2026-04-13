@@ -56,7 +56,7 @@ defmodule AshTui.Views.AttributesTab do
       end)
 
     selected =
-      if state.focus == :detail and length(rows) > 0 do
+      if state.focus == :detail and rows != [] do
         state.detail_selected
       else
         nil

@@ -56,7 +56,7 @@ defmodule AshTui.Views.ActionsTab do
       end)
 
     selected =
-      if state.focus == :detail and length(rows) > 0 do
+      if state.focus == :detail and rows != [] do
         state.detail_selected
       else
         nil
@@ -107,9 +107,7 @@ defmodule AshTui.Views.ActionsTab do
   defp format_arguments([]), do: ""
 
   defp format_arguments(args) do
-    args
-    |> Enum.map(&Atom.to_string(&1.name))
-    |> Enum.join(", ")
+    Enum.map_join(args, ", ", &Atom.to_string(&1.name))
   end
 
   defp empty_table(message) do

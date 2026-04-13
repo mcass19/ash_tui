@@ -2,8 +2,8 @@ defmodule AshTui.Views.NavPanelTest do
   use ExUnit.Case, async: true
 
   alias AshTui.State
-  alias AshTui.Views.NavPanel
   alias AshTui.Test.Fixtures
+  alias AshTui.Views.NavPanel
   alias ExRatatui.Layout.Rect
   alias ExRatatui.Native
 

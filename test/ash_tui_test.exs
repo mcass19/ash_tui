@@ -1,8 +1,6 @@
 defmodule AshTuiTest do
   use ExUnit.Case, async: true
 
-  import ExUnit.CaptureLog
-
   alias AshTui.State
   alias AshTui.Test.Fixtures
 
@@ -18,16 +16,7 @@ defmodule AshTuiTest do
         )
 
       assert Process.alive?(pid)
-
-      # Monitor first, then unlink and kill — avoids the race where the
-      # process is already gone by the time we call Process.monitor/1.
-      ref = Process.monitor(pid)
-      Process.unlink(pid)
-
-      capture_log(fn ->
-        Process.exit(pid, :kill)
-        assert_receive {:DOWN, ^ref, :process, ^pid, _reason}
-      end)
+      GenServer.stop(pid)
     end
   end
 

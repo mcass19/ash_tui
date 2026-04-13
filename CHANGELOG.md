@@ -14,9 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `--ssh`, `--distributed`, and `--port` flags on `mix ash.tui`
 - Transport banner messages printed to the console when starting SSH or distributed mode
 - `examples/ash_demo` now includes an `AshDemo.Application` module demonstrating how to embed the SSH daemon or distribution listener in a supervision tree (set `TRANSPORT=ssh` or `TRANSPORT=distributed`)
+- `credo` dependency and `mix credo --strict` CI step for code linting
 - CI enforces 95% test coverage threshold
 - Missing doctests and field documentation for introspection structs, `State`, `Theme`, and all view modules
 - Added coverage requirement note to CONTRIBUTING.md
+- CONTRIBUTING.md now documents branching/commit conventions, credo in PR checklist, and documentation expectations
 
 ### Changed
 

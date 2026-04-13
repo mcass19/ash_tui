@@ -52,6 +52,7 @@ defmodule AshTui.MixProject do
       {:ex_ratatui, "~> 0.7"},
 
       # Dev
+      {:credo, "~> 1.7", only: :dev, runtime: false},
       {:ex_doc, "~> 0.35", only: :dev, runtime: false},
       {:dialyxir, "~> 1.4", only: :dev, runtime: false}
     ]
@@ -64,8 +65,17 @@ defmodule AshTui.MixProject do
         "GitHub" => @source_url,
         "Changelog" => @changelog_url
       },
-      files: ~w(lib .formatter.exs mix.exs README.md LICENSE CHANGELOG.md),
-      keywords: ["ash", "tui", "terminal", "explorer", "introspection", "ratatui"]
+      files: ~w(lib .formatter.exs mix.exs README.md LICENSE CHANGELOG.md CONTRIBUTING.md),
+      keywords: [
+        "ash",
+        "tui",
+        "terminal",
+        "explorer",
+        "introspection",
+        "ratatui",
+        "ssh",
+        "distributed"
+      ]
     ]
   end
 

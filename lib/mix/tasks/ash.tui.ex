@@ -108,7 +108,7 @@ defmodule Mix.Tasks.Ash.Tui do
         """
 
         Ash TUI explorer listening for distribution connections.
-        Attach from another node: ExRatatui.Distributed.attach(node(), AshTui.App)
+        Attach from another node: ExRatatui.Distributed.attach(:"#{Node.self()}", AshTui.App)
         Press Ctrl+C to stop the listener.
         """
     end
