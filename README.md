@@ -178,7 +178,7 @@ def start(_type, _args) do
 end
 ```
 
-See the [ash_demo example](examples/ash_demo) for a complete working setup.
+See the [ash_demo example](https://github.com/mcass19/ash_tui/tree/main/examples/ash_demo) for a complete working setup.
 
 ## How It Works
 

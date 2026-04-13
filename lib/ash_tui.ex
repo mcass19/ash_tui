@@ -56,7 +56,7 @@ defmodule AshTui do
 
   ### Local options
 
-  Any extra options are forwarded to `AshTui.App.start_link/1`
+  Any extra options are forwarded to `AshTui.App`
   (e.g. `test_mode: {80, 24}`, `name: nil`).
 
   ### SSH options
