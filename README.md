@@ -151,6 +151,35 @@ AshTui.explore(:my_app, transport: :distributed)
 
 See the [ExRatatui Distribution guide](https://hexdocs.pm/ex_ratatui/distributed_transport.html) for details on options, testing, and troubleshooting.
 
+### Embedding in a Supervision Tree
+
+For deployed applications, you can embed the SSH daemon or distribution listener directly in your supervision tree so it starts with your app and is always available — no `mix ash.tui` needed:
+
+```elixir
+# In your application.ex
+def start(_type, _args) do
+  state =
+    :my_app
+    |> AshTui.Introspection.load()
+    |> AshTui.State.new()
+
+  children = [
+    # ... your existing children ...
+    {AshTui.App,
+     transport: :ssh,
+     port: 2222,
+     auto_host_key: true,
+     auth_methods: ~c"password",
+     user_passwords: [{~c"admin", ~c"secret"}],
+     app_opts: [state: state]}
+  ]
+
+  Supervisor.start_link(children, strategy: :one_for_one)
+end
+```
+
+See the [ash_demo example](examples/ash_demo) for a complete working setup.
+
 ## How It Works
 
 AshTui uses Ash's compile-time introspection API to load your domain model:

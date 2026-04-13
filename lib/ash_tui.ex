@@ -130,7 +130,7 @@ defmodule AshTui do
         opts = Keyword.put(opts, :app_opts, app_opts)
 
         case transport do
-          :ssh -> apply_ssh_defaults(opts)
+          :ssh -> ssh_defaults(opts)
           :distributed -> opts
         end
       end
@@ -144,7 +144,18 @@ defmodule AshTui do
     end
   end
 
-  defp apply_ssh_defaults(opts) do
+  @doc """
+  Applies default SSH options to the given keyword list.
+
+  Defaults (all overridable via `opts`):
+
+    * `:port` — `2222`
+    * `:auto_host_key` — `true`
+    * `:auth_methods` — `~c"password"`
+    * `:user_passwords` — `[{~c"ash", ~c"tui"}]`
+  """
+  @spec ssh_defaults(keyword()) :: keyword()
+  def ssh_defaults(opts) do
     opts
     |> Keyword.put_new(:port, 2222)
     |> Keyword.put_new(:auto_host_key, true)

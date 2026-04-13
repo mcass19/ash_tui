@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Erlang distribution transport** — start a listener via `mix ash.tui --distributed` or `AshTui.explore(:app, transport: :distributed)`. Remote BEAM nodes attach with `ExRatatui.Distributed.attach(node, AshTui.App)` — useful for headless servers and Nerves devices
 - `--ssh`, `--distributed`, and `--port` flags on `mix ash.tui`
 - Transport banner messages printed to the console when starting SSH or distributed mode
+- `examples/ash_demo` now includes an `AshDemo.Application` module demonstrating how to embed the SSH daemon or distribution listener in a supervision tree (set `TRANSPORT=ssh` or `TRANSPORT=distributed`)
 - CI enforces 95% test coverage threshold
 - Missing doctests and field documentation for introspection structs, `State`, `Theme`, and all view modules
 - Added coverage requirement note to CONTRIBUTING.md

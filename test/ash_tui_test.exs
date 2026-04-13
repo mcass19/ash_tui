@@ -1,6 +1,8 @@
 defmodule AshTuiTest do
   use ExUnit.Case, async: true
 
+  import ExUnit.CaptureLog
+
   alias AshTui.State
   alias AshTui.Test.Fixtures
 
@@ -17,9 +19,15 @@ defmodule AshTuiTest do
 
       assert Process.alive?(pid)
 
-      # Unlink before killing to avoid taking down the test process.
+      # Monitor first, then unlink and kill — avoids the race where the
+      # process is already gone by the time we call Process.monitor/1.
+      ref = Process.monitor(pid)
       Process.unlink(pid)
-      Process.exit(pid, :kill)
+
+      capture_log(fn ->
+        Process.exit(pid, :kill)
+        assert_receive {:DOWN, ^ref, :process, ^pid, _reason}
+      end)
     end
   end
 
@@ -73,6 +81,24 @@ defmodule AshTuiTest do
       assert output == ""
     after
       Application.delete_env(:ash_tui_test_app, :ash_domains)
+    end
+
+    test "ssh transport applies default options" do
+      defaults = AshTui.ssh_defaults(transport: :ssh)
+
+      assert defaults[:port] == 2222
+      assert defaults[:auto_host_key] == true
+      assert defaults[:auth_methods] == ~c"password"
+      assert defaults[:user_passwords] == [{~c"ash", ~c"tui"}]
+    end
+
+    test "ssh transport preserves custom options" do
+      opts = [transport: :ssh, port: 4000, user_passwords: [{~c"admin", ~c"secret"}]]
+      defaults = AshTui.ssh_defaults(opts)
+
+      assert defaults[:port] == 4000
+      assert defaults[:user_passwords] == [{~c"admin", ~c"secret"}]
+      assert defaults[:auto_host_key] == true
     end
   end
 
