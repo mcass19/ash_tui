@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-04-13
+
 ### Added
 
 - **SSH transport** — serve the explorer over SSH via `mix ash.tui --ssh` or `AshTui.explore(:app, transport: :ssh)`. Multiple clients can connect simultaneously, each with an isolated session. Defaults to port 2222 with password auth (`ash` / `tui`). Custom port, credentials, and all `:ssh.daemon/2` options are supported
@@ -83,7 +85,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Footer keybinding hints now show `j/k/h/l` alongside arrow keys
 - Removed Constraints column from the attributes table to avoid truncation — constraints are now shown in the attribute detail overlay instead
 
-[Unreleased]: https://github.com/mcass19/ash_tui/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/mcass19/ash_tui/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/mcass19/ash_tui/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/mcass19/ash_tui/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/mcass19/ash_tui/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/mcass19/ash_tui/releases/tag/v0.1.0
