@@ -18,8 +18,13 @@ defmodule AshTui.MixProject do
       test_coverage: [
         threshold: 95,
         ignore_modules: [
+          # `mix ash.tui` boots a real terminal session via
+          # `AshTui.explore/2`. The CLI shell is thin glue; the work it
+          # delegates to is covered directly.
           Mix.Tasks.Ash.Tui,
+          # Test fixtures — exercised by tests.
           AshTui.Test.TestDomain,
+          # Auto-derived `Inspect` protocol impls for the fixture resources.
           Inspect.AshTui.Test.Author,
           Inspect.AshTui.Test.Post
         ]
@@ -49,7 +54,7 @@ defmodule AshTui.MixProject do
   defp deps do
     [
       {:ash, "~> 3.24"},
-      {:ex_ratatui, "~> 0.7"},
+      {:ex_ratatui, "~> 0.8"},
 
       # Dev
       {:credo, "~> 1.7", only: :dev, runtime: false},
