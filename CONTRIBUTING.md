@@ -2,9 +2,7 @@
 
 Thanks for your interest in contributing!
 
-AshTui is a pure Elixir project built on [ExRatatui](https://github.com/mcass19/ex_ratatui).
-
-Feel free to also consider contributing on the upstream library if you're missing a feature, or something is not working. Contributions are welcome everywhere!
+AshTui is built on [ExRatatui](https://github.com/mcass19/ex_ratatui). Feel free to also consider contributing on the upstream library if you're missing a feature, or something is not working. Contributions are welcome everywhere!
 
 This guide will help you get set up.
 
@@ -17,26 +15,26 @@ git clone https://github.com/mcass19/ash_tui.git
 cd ash_tui
 ```
 
-2. Install dependencies:
+2. Prerequisites:
 
-- **Elixir** 1.17+ and **Erlang/OTP** 26+
+- **Elixir** 1.17+ and **Erlang/OTP** 26+.
 
-3. Fetch deps and compile:
+3. Fetch dependencies:
 
 ```sh
 mix deps.get
-mix compile
 ```
 
 ## Running Tests
 
 ```sh
 mix test
+mix test --cover        # must report >95% Total
 ```
 
-> **Note:** CI enforces **95% test coverage**. If you add new public functions
-> or branches, make sure to add corresponding tests. Run `mix test --cover`
-> locally to check before pushing.
+A small number of modules are excluded from coverage in `mix.exs`. The threshold applies to everything else.
+
+For an actual smoke test, open the TUI with the app under `examples/`.
 
 ## Branching and Commits
 
@@ -52,8 +50,8 @@ Before submitting a PR, make sure the following pass:
 mix format --check-formatted
 mix compile --warnings-as-errors
 mix credo --strict
-mix test
 mix dialyzer
+mix test --cover
 ```
 
 - Keep PRs focused — one feature or fix per PR
