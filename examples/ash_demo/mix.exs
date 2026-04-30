@@ -20,7 +20,7 @@ defmodule AshDemo.MixProject do
 
   defp deps do
     [
-      {:ash, "~> 3.19"},
+      {:ash, "~> 3.24"},
       {:ash_tui, path: "../.."}
     ]
   end
