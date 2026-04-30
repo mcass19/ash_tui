@@ -1,10 +1,11 @@
 defmodule AshTui.Theme do
   @moduledoc """
-  Color and style constants for the TUI.
+  Color, style, and rich-text constants for the TUI.
 
   Provides a consistent visual palette based on the Ash Framework brand
-  colors. All functions are pure and return either a color tuple or an
-  `%ExRatatui.Style{}` struct.
+  colors. All functions are pure and return a color tuple, an
+  `%ExRatatui.Style{}`, an `%ExRatatui.Text.Span{}`, or an
+  `%ExRatatui.Text.Line{}` — never a side effect.
 
   ## Colors
 
@@ -22,9 +23,18 @@ defmodule AshTui.Theme do
     * `focused_border_style/0` - cornflower border (active panel)
     * `unfocused_border_style/0` - dim border (inactive panel)
     * `border_style/1` - convenience toggle between focused/unfocused
+
+  ## Rich Text
+
+    * `brand_title/1` - branded header line ("🔥 Ash TUI Explorer · breadcrumb")
+    * `resource_title/1` - dim-domain + bold-resource line for the tabs block
+    * `key_pill/2` - colored "key" pill `%Span{}` for footer / help hints
+    * `dim_span/1` - dim-text descriptor span between pills
+    * `footer_line/1` - assembles a `%Line{}` from a list of `{keys, label}` pairs
   """
 
   alias ExRatatui.Style
+  alias ExRatatui.Text.{Line, Span}
 
   # ── Colors ──────────────────────────────────────────────────
 
@@ -170,5 +180,177 @@ defmodule AshTui.Theme do
   @spec border_style(boolean()) :: Style.t()
   def border_style(focused?) do
     if focused?, do: focused_border_style(), else: unfocused_border_style()
+  end
+
+  # ── Rich Text ──────────────────────────────────────────────
+
+  @doc ~S"""
+  Branded header line — `🔥 Ash TUI Explorer` with an optional breadcrumb.
+
+  `Ash` renders in `ash_orange/0` bold, `TUI` in `gold/0` bold, `Explorer`
+  in white, and the breadcrumb in `cornflower/0` bold separated by a dim
+  `│`.
+
+  ## Examples
+
+      iex> %ExRatatui.Text.Line{spans: spans} = AshTui.Theme.brand_title("")
+      iex> Enum.map(spans, & &1.content)
+      [" 🔥 ", "Ash", " ", "TUI", " ", "Explorer "]
+
+      iex> %ExRatatui.Text.Line{spans: spans} = AshTui.Theme.brand_title("User")
+      iex> Enum.map_join(spans, "", & &1.content)
+      " 🔥 Ash TUI Explorer  │  User "
+  """
+  @spec brand_title(String.t()) :: Line.t()
+  def brand_title(breadcrumb) when is_binary(breadcrumb) do
+    base = [
+      %Span{content: " 🔥 ", style: %Style{}},
+      %Span{content: "Ash", style: %Style{fg: ash_orange(), modifiers: [:bold]}},
+      %Span{content: " ", style: %Style{}},
+      %Span{content: "TUI", style: %Style{fg: gold(), modifiers: [:bold]}},
+      %Span{content: " ", style: %Style{}},
+      %Span{content: "Explorer ", style: %Style{fg: :white, modifiers: [:bold]}}
+    ]
+
+    spans =
+      case breadcrumb do
+        "" ->
+          base
+
+        crumb ->
+          base ++
+            [
+              %Span{content: " │  ", style: %Style{fg: dim_text()}},
+              %Span{content: "#{crumb} ", style: %Style{fg: cornflower(), modifiers: [:bold]}}
+            ]
+      end
+
+    %Line{spans: spans}
+  end
+
+  @doc ~S"""
+  Title line for the detail (tabs) block — the domain prefix renders dim
+  while the bare resource name is bold gold.
+
+  ## Examples
+
+      iex> %ExRatatui.Text.Line{spans: spans} =
+      ...>   AshTui.Theme.resource_title("AshDemo.Accounts.User")
+      iex> Enum.map(spans, & &1.content)
+      [" ", "AshDemo.Accounts.", "User", " "]
+
+      iex> %ExRatatui.Text.Line{spans: [_, _, name, _]} =
+      ...>   AshTui.Theme.resource_title("Bare")
+      iex> name.content
+      "Bare"
+
+      iex> %ExRatatui.Text.Line{spans: [%{content: only}]} =
+      ...>   AshTui.Theme.resource_title("")
+      iex> only
+      " No resource selected "
+  """
+  @spec resource_title(String.t()) :: Line.t()
+  def resource_title("") do
+    %Line{
+      spans: [%Span{content: " No resource selected ", style: %Style{fg: dim_text()}}]
+    }
+  end
+
+  def resource_title(name) when is_binary(name) do
+    {prefix, base} =
+      case String.split(name, ".") do
+        [_only] ->
+          {"", name}
+
+        parts ->
+          [last | head] = Enum.reverse(parts)
+          {Enum.join(Enum.reverse(head), ".") <> ".", last}
+      end
+
+    %Line{
+      spans: [
+        %Span{content: " ", style: %Style{}},
+        %Span{content: prefix, style: %Style{fg: dim_text()}},
+        %Span{content: base, style: %Style{fg: gold(), modifiers: [:bold]}},
+        %Span{content: " ", style: %Style{}}
+      ]
+    }
+  end
+
+  @doc ~S"""
+  Colored "key" pill — keys render bold over a colored background, used
+  in footer and help hints.
+
+  Pass `:quit` for the warning red pill (used for `q`); any other atom
+  uses the calm cyan pill.
+
+  ## Examples
+
+      iex> pill = AshTui.Theme.key_pill("Tab")
+      iex> pill.style.bg
+      :cyan
+      iex> pill.content
+      " Tab "
+
+      iex> pill = AshTui.Theme.key_pill("q", :quit)
+      iex> pill.style.bg
+      :red
+      iex> :bold in pill.style.modifiers
+      true
+  """
+  @spec key_pill(String.t(), :default | :quit) :: Span.t()
+  def key_pill(label, kind \\ :default) when is_binary(label) do
+    style =
+      case kind do
+        :quit -> %Style{bg: :red, fg: :white, modifiers: [:bold]}
+        _ -> %Style{bg: :cyan, fg: :black, modifiers: [:bold]}
+      end
+
+    %Span{content: " #{label} ", style: style}
+  end
+
+  @doc ~S"""
+  Dim span used between key pills in the footer / help.
+
+  ## Examples
+
+      iex> span = AshTui.Theme.dim_span(" navigate")
+      iex> span.content
+      " navigate"
+      iex> span.style.fg == AshTui.Theme.dim_text()
+      true
+  """
+  @spec dim_span(String.t()) :: Span.t()
+  def dim_span(text) when is_binary(text) do
+    %Span{content: text, style: %Style{fg: dim_text()}}
+  end
+
+  @doc ~S"""
+  Builds a footer `%Line{}` from a list of `{label, description}` pairs.
+
+  Each entry becomes a key pill followed by a dim description and a
+  trailing space. Pass a `{label, description, :quit}` triple to render
+  the warning-red pill.
+
+  ## Examples
+
+      iex> %ExRatatui.Text.Line{spans: spans} =
+      ...>   AshTui.Theme.footer_line([{"Tab", "cycle"}, {"q", "quit", :quit}])
+      iex> Enum.map_join(spans, "", & &1.content)
+      " Tab  cycle  q  quit "
+  """
+  @spec footer_line([{String.t(), String.t()} | {String.t(), String.t(), atom()}]) :: Line.t()
+  def footer_line(entries) when is_list(entries) do
+    spans =
+      entries
+      |> Enum.flat_map(fn
+        {label, description} ->
+          [key_pill(label), dim_span(" #{description} ")]
+
+        {label, description, kind} ->
+          [key_pill(label, kind), dim_span(" #{description} ")]
+      end)
+
+    %Line{spans: spans}
   end
 end

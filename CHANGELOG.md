@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Visual refresh on top of `ex_ratatui ~> 0.8`'s rich-text primitives.** The header, footer, tab block title, navigation block title, and help overlay now build `%ExRatatui.Text.Line{}` / `%Span{}` trees instead of plain strings, so every label can carry its own foreground/background/modifier. Concrete changes:
+  - **Header** is now a branded line — `🔥 Ash` in Ash orange + `TUI` in gold + `Explorer` in white, with the breadcrumb in cornflower-bold separated by a dim `│`. Replaces the previous single-color title.
+  - **Footer** renders **key pills** (cyan-bg / black-fg for navigation keys, red-bg for `q`) followed by dim descriptions, matching the style used by `phoenix_ex_ratatui_example` and `nerves_ex_ratatui_example` so the family looks consistent. Also fixes a long-standing inconsistency: `/` (search) and `Esc` (back) work in any focus, so both are now always visible — previously the footer hid one or the other depending on `state.focus`, even though the keys still worked.
+  - **Detail block title** splits the resource module: the domain prefix (e.g. `AshDemo.Accounts.`) renders dim, the bare resource name (`User`) bold gold. You read "what" before "where it lives."
+  - **Navigation block title** now ends with a live `Nd · Mr` count (domains / resources) in bold gold over a dim separator, so an empty or filtered state is visible at a glance.
+  - **Help overlay** rebuilt as a `%Line{}` list with cornflower-bold section headers (`── Navigation ──`, `── Tabs ──`, …) and the same key-pill vocabulary as the footer, on top of the dark overlay background.
+- New rich-text helpers in `AshTui.Theme`: `brand_title/1`, `resource_title/1`, `key_pill/2`, `dim_span/1`, `footer_line/1` — all with doctests. Existing color and style accessors are unchanged.
+
 ## [0.3.0] - 2026-04-13
 
 ### Added

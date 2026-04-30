@@ -30,19 +30,27 @@ Navigate your domains, resources, attributes, actions, and relationships — wit
 ## UI Layout
 
 ```
-┌─ Search ─────────────┐ ┌─ Accounts.User ─────────────────────┐
-│ / search...           │ │  Attributes │ Actions │ Relationships│
-├─ Navigation ─────────┤ ├──────────────────────────────────────┤
-│  ◆ Accounts          │ │ Name        Type       Required?     │
-│    └ User ◀          │ │ ────        ────       ────────      │
-│    └ Token           │ │ :id         :uuid      🔑 auto      │▒
-│  ◆ Blog              │ │ :email      :ci_string ✓ yes        │▒
-│                      │ │ :name       :string    ○             │
-│                      │ │ :role       :atom      ○             │
-│                      │ │                                      │
-└──────────────────────┘ └──────────────────────────────────────┘
- j/k navigate  / search  Enter select  ? help  q quit
+╭─ 🔥 Ash TUI Explorer  │  User ──────────────────────────────────╮
+╰─────────────────────────────────────────────────────────────────╯
+╭─ Search ─────────────╮ ╭─ Accounts.User ────────────────────────╮
+│ / search...          │ │ Attributes │ Actions │ Relationships   │
+╰──────────────────────╯ ╰────────────────────────────────────────╯
+╭─ Navigation 2d · 3r ─╮ ╭────────────────────────────────────────╮
+│ ▶ ◆ Accounts         │ │ Name      Type       Required?         │
+│     └ User           │ │ id        uuid       🔑 auto          │
+│     └ Token          │ │ email     ci_string  ✓ yes            │
+│   ◆ Blog             │ │ name      string     ○                 │
+│                      │ │ role      atom       ○                 │
+╰──────────────────────╯ ╰────────────────────────────────────────╯
+╭─────────────────────────────────────────────────────────────────╮
+│ j/k navigate  ⏎ select  h/l panels  Tab tabs  / search  q quit  │
+╰─────────────────────────────────────────────────────────────────╯
 ```
+
+The header brand line, footer key pills, tab block title, navigation
+counter, and help overlay all use `%ExRatatui.Text.Line{}` /
+`%Span{}` rich text — every label carries its own color and modifier
+rather than a single style for the whole string.
 
 ## Installation
 

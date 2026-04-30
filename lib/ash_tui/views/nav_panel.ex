@@ -11,6 +11,7 @@ defmodule AshTui.Views.NavPanel do
   alias ExRatatui.Layout
   alias ExRatatui.Layout.Rect
   alias ExRatatui.Style
+  alias ExRatatui.Text.{Line, Span}
   alias ExRatatui.Widgets.Block
   alias ExRatatui.Widgets.List, as: WidgetList
   alias ExRatatui.Widgets.Scrollbar
@@ -97,7 +98,7 @@ defmodule AshTui.Views.NavPanel do
       highlight_style: Theme.highlight_style(),
       highlight_symbol: "\u{25B6} ",
       block: %Block{
-        title: " Navigation ",
+        title: nav_title(state),
         borders: [:all],
         border_type: :rounded,
         border_style: Theme.border_style(state.focus == :nav and not state.searching)
@@ -130,4 +131,25 @@ defmodule AshTui.Views.NavPanel do
   defp format_domain(name), do: "\u{25C6} #{Format.short_name(name)}"
 
   defp format_resource(name), do: "  \u{2514} #{Format.short_name(name)}"
+
+  defp nav_title(state) do
+    domain_count = length(state.domains)
+    resource_count = state.domains |> Enum.flat_map(& &1.resources) |> length()
+
+    %Line{
+      spans: [
+        %Span{content: " Navigation ", style: %Style{fg: Theme.cornflower(), modifiers: [:bold]}},
+        %Span{
+          content: to_string(domain_count),
+          style: %Style{fg: Theme.gold(), modifiers: [:bold]}
+        },
+        %Span{content: "d · ", style: %Style{fg: Theme.dim_text()}},
+        %Span{
+          content: to_string(resource_count),
+          style: %Style{fg: Theme.gold(), modifiers: [:bold]}
+        },
+        %Span{content: "r ", style: %Style{fg: Theme.dim_text()}}
+      ]
+    }
+  end
 end

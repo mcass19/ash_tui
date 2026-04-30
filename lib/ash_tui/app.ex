@@ -28,6 +28,7 @@ defmodule AshTui.App do
   alias ExRatatui.Layout
   alias ExRatatui.Layout.Rect
   alias ExRatatui.Style
+  alias ExRatatui.Text.{Line, Span}
   alias ExRatatui.Widgets.{Block, Paragraph, Tabs}
 
   # ── Callbacks ──────────────────────────────────────────────
@@ -101,18 +102,8 @@ defmodule AshTui.App do
   end
 
   defp render_header(state, rect) do
-    breadcrumb = State.breadcrumb(state)
-
-    title =
-      if breadcrumb == "" do
-        "  \u{1F525} Ash TUI Explorer"
-      else
-        "  \u{1F525} Ash TUI Explorer  \u{2502}  #{breadcrumb}"
-      end
-
     header = %Paragraph{
-      text: title,
-      style: %Style{fg: :white, modifiers: [:bold]},
+      text: Theme.brand_title(State.breadcrumb(state)),
       block: %Block{
         borders: [:all],
         border_type: :rounded,
@@ -137,35 +128,37 @@ defmodule AshTui.App do
   end
 
   defp render_tabs(state, rect) do
-    tab_titles = ["Attributes", "Actions", "Relationships"]
-
     tab_index =
       Enum.find_index([:attributes, :actions, :relationships], &(&1 == state.current_tab))
 
-    detail_border = Theme.border_style(state.focus == :detail)
-
-    resource_title =
-      if state.current_resource do
-        name = state.current_resource.name |> Module.split() |> Enum.join(".")
-        " #{name} "
-      else
-        " No resource selected "
+    name =
+      case state.current_resource do
+        nil -> ""
+        resource -> resource.name |> Module.split() |> Enum.join(".")
       end
 
     tab_bar = %Tabs{
-      titles: tab_titles,
+      titles: tab_titles(),
       selected: tab_index,
       style: %Style{fg: :white},
       highlight_style: %Style{fg: Theme.gold(), modifiers: [:bold]},
       block: %Block{
-        title: resource_title,
+        title: Theme.resource_title(name),
         borders: [:all],
         border_type: :rounded,
-        border_style: detail_border
+        border_style: Theme.border_style(state.focus == :detail)
       }
     }
 
     [{tab_bar, rect}]
+  end
+
+  defp tab_titles do
+    [
+      %Span{content: "Attributes", style: %Style{fg: :white}},
+      %Span{content: "Actions", style: %Style{fg: :white}},
+      %Span{content: "Relationships", style: %Style{fg: :white}}
+    ]
   end
 
   defp render_tab_content(state, rect) do
@@ -177,21 +170,8 @@ defmodule AshTui.App do
   end
 
   defp render_footer(state, rect) do
-    text =
-      cond do
-        state.searching ->
-          " type to filter  \u{23CE} confirm  Esc cancel"
-
-        state.focus == :nav ->
-          " j/k/\u{2191}\u{2193} navigate  \u{23CE} select  h/l/\u{2190}\u{2192} panels  \u{21E5} tabs  / search  ? help  q quit"
-
-        state.focus == :detail ->
-          " j/k/\u{2191}\u{2193} navigate  \u{23CE} select  h/l/\u{2190}\u{2192} panels  \u{21E5} tabs  Esc back  ? help  q quit"
-      end
-
     footer = %Paragraph{
-      text: text,
-      style: %Style{fg: Theme.dim_text()},
+      text: footer_line(state),
       block: %Block{
         borders: [:all],
         border_type: :rounded,
@@ -202,53 +182,114 @@ defmodule AshTui.App do
     [{footer, rect}]
   end
 
+  defp footer_line(%{searching: true}) do
+    Theme.footer_line([
+      {"a-z", "type to filter"},
+      {"⏎", "confirm"},
+      {"Esc", "cancel", :quit}
+    ])
+  end
+
+  defp footer_line(_state) do
+    Theme.footer_line([
+      {"j/k", "navigate"},
+      {"⏎", "select"},
+      {"h/l", "panels"},
+      {"Tab", "tabs"},
+      {"/", "search"},
+      {"Esc", "back"},
+      {"?", "help"},
+      {"q", "quit", :quit}
+    ])
+  end
+
   # ── Help Overlay ───────────────────────────────────────────
 
   defp render_help(area) do
-    help_text = """
-    \u{1F525} Ash TUI Explorer - Keyboard Reference
-
-    \u{2500}\u{2500}\u{2500} Navigation \u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}
-      j / \u{2193}         Move selection down
-      k / \u{2191}         Move selection up
-      h / \u{2190}         Focus navigation panel
-      l / \u{2192}         Focus detail panel
-      \u{23CE} Enter      Select / drill into item
-      Esc           Go back (pop nav stack)
-
-    \u{2500}\u{2500}\u{2500} Tabs \u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}
-      \u{21E5} Tab        Cycle through tabs
-      1             Attributes tab
-      2             Actions tab
-      3             Relationships tab
-
-    \u{2500}\u{2500}\u{2500} Relationships \u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}
-      \u{23CE} Enter      Navigate to destination resource
-      Esc           Return to previous resource
-
-    \u{2500}\u{2500}\u{2500} Search \u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}
-      /             Start filtering resources
-      \u{23CE} Enter      Accept filter
-      Esc           Clear filter and cancel
-
-    \u{2500}\u{2500}\u{2500} Other \u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}
-      ?             Toggle this help
-      q             Quit
-
-    Press any key to close this help.
-    """
-
     help = %Paragraph{
-      text: help_text,
-      style: %Style{fg: :white},
+      text: help_lines(),
       block: %Block{
-        title: " Help ",
+        title: help_title(),
         borders: [:all],
         border_type: :double,
-        border_style: %Style{fg: Theme.ash_orange()}
+        border_style: %Style{fg: Theme.ash_orange()},
+        style: %Style{bg: Theme.overlay_bg()}
       }
     }
 
     [{help, area}]
   end
+
+  defp help_title do
+    %Line{
+      spans: [
+        %Span{content: " 🔥 ", style: %Style{}},
+        %Span{content: "Keyboard Reference ", style: %Style{fg: :white, modifiers: [:bold]}}
+      ]
+    }
+  end
+
+  defp help_lines do
+    [
+      blank_line(),
+      help_section("Navigation"),
+      help_row("j / ↓", "Move selection down"),
+      help_row("k / ↑", "Move selection up"),
+      help_row("h / ←", "Focus navigation panel"),
+      help_row("l / →", "Focus detail panel"),
+      help_row("⏎", "Select / drill into item"),
+      help_row("Esc", "Go back (pop nav stack)"),
+      blank_line(),
+      help_section("Tabs"),
+      help_row("Tab", "Cycle through tabs"),
+      help_row("1", "Attributes tab"),
+      help_row("2", "Actions tab"),
+      help_row("3", "Relationships tab"),
+      blank_line(),
+      help_section("Relationships"),
+      help_row("⏎", "Navigate to destination resource"),
+      help_row("Esc", "Return to previous resource"),
+      blank_line(),
+      help_section("Search"),
+      help_row("/", "Start filtering resources"),
+      help_row("⏎", "Accept filter"),
+      help_row("Esc", "Clear filter and cancel"),
+      blank_line(),
+      help_section("Other"),
+      help_row("?", "Toggle this help"),
+      help_row("q", "Quit", :quit),
+      blank_line(),
+      %Line{
+        spans: [
+          %Span{
+            content: "  Press any key to close this help.",
+            style: %Style{fg: Theme.dim_text()}
+          }
+        ]
+      }
+    ]
+  end
+
+  defp help_section(label) do
+    %Line{
+      spans: [
+        %Span{content: "  ── ", style: %Style{fg: Theme.dim_text()}},
+        %Span{content: label, style: %Style{fg: Theme.cornflower(), modifiers: [:bold]}},
+        %Span{content: " ──", style: %Style{fg: Theme.dim_text()}}
+      ]
+    }
+  end
+
+  defp help_row(keys, description, kind \\ :default) do
+    %Line{
+      spans: [
+        %Span{content: "  ", style: %Style{}},
+        Theme.key_pill(keys, kind),
+        %Span{content: "  ", style: %Style{}},
+        %Span{content: description, style: %Style{fg: :white}}
+      ]
+    }
+  end
+
+  defp blank_line, do: %Line{spans: [%Span{content: "", style: %Style{}}]}
 end

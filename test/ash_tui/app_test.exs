@@ -57,14 +57,18 @@ defmodule AshTui.AppTest do
 
     test "footer shows hjkl hints", %{terminal: terminal, state: state} do
       content = render_app(terminal, state)
-      assert content =~ "j/k/"
-      assert content =~ "h/l/"
+      assert content =~ "j/k"
+      assert content =~ "h/l"
     end
 
-    test "footer shows Esc when in detail mode", %{terminal: terminal, state: state} do
-      state = %{state | focus: :detail}
-      content = render_app(terminal, state)
-      assert content =~ "Esc"
+    test "footer always shows Esc and / regardless of focus", %{terminal: terminal, state: state} do
+      nav_content = render_app(terminal, %{state | focus: :nav})
+      assert nav_content =~ "Esc"
+      assert nav_content =~ "search"
+
+      detail_content = render_app(terminal, %{state | focus: :detail})
+      assert detail_content =~ "Esc"
+      assert detail_content =~ "search"
     end
   end
 
@@ -97,7 +101,6 @@ defmodule AshTui.AppTest do
       content = render_app(terminal, state)
       assert content =~ "Keyboard Reference"
       assert content =~ "Move selection down"
-      assert content =~ "Help"
     end
   end
 
