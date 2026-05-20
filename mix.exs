@@ -53,8 +53,8 @@ defmodule AshTui.MixProject do
 
   defp deps do
     [
-      {:ash, "~> 3.24"},
-      {:ex_ratatui, "~> 0.8"},
+      {:ash, "~> 3.25"},
+      {:ex_ratatui, "~> 0.10"},
 
       # Dev
       {:credo, "~> 1.7", only: :dev, runtime: false},
