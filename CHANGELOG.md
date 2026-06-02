@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Bump `ex_ratatui` to `~> 0.10`, `ash` to `~> 3.27`, and `ex_doc` to `~> 0.40`
+- Trim a redundant rich-text note from the README
+
 ## [0.3.1] - 2026-04-30
 
 ### Changed

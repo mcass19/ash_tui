@@ -47,11 +47,6 @@ Navigate your domains, resources, attributes, actions, and relationships — wit
 ╰─────────────────────────────────────────────────────────────────╯
 ```
 
-The header brand line, footer key pills, tab block title, navigation
-counter, and help overlay all use `%ExRatatui.Text.Line{}` /
-`%Span{}` rich text — every label carries its own color and modifier
-rather than a single style for the whole string.
-
 ## Installation
 
 Add `ash_tui` to your dependencies:
