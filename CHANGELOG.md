@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-06-02
+
 ### Changed
 
 - Bump `ex_ratatui` to `~> 0.10`, `ash` to `~> 3.27`, and `ex_doc` to `~> 0.40`
@@ -113,7 +115,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Footer keybinding hints now show `j/k/h/l` alongside arrow keys
 - Removed Constraints column from the attributes table to avoid truncation — constraints are now shown in the attribute detail overlay instead
 
-[Unreleased]: https://github.com/mcass19/ash_tui/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/mcass19/ash_tui/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/mcass19/ash_tui/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/mcass19/ash_tui/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/mcass19/ash_tui/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/mcass19/ash_tui/compare/v0.1.1...v0.2.0
