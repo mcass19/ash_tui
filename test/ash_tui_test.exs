@@ -72,6 +72,25 @@ defmodule AshTuiTest do
       Application.delete_env(:ash_tui_test_app, :ash_domains)
     end
 
+    test "explore/1 boots locally with default options via the configured starter" do
+      test = self()
+
+      Application.put_env(:ash_tui, :app_starter, fn _start_opts ->
+        {:ok, pid} = Agent.start_link(fn -> :ok end)
+        send(test, {:started, pid})
+        {:ok, pid}
+      end)
+
+      on_exit(fn -> Application.delete_env(:ash_tui, :app_starter) end)
+
+      ExUnit.CaptureIO.capture_io(:stderr, fn ->
+        task = Task.async(fn -> AshTui.explore(:ash_tui_no_domains) end)
+        assert_receive {:started, pid}
+        Agent.stop(pid)
+        assert Task.await(task) == :ok
+      end)
+    end
+
     test "ssh transport applies default options" do
       defaults = AshTui.ssh_defaults(transport: :ssh)
 
@@ -88,6 +107,31 @@ defmodule AshTuiTest do
       assert defaults[:port] == 4000
       assert defaults[:user_passwords] == [{~c"admin", ~c"secret"}]
       assert defaults[:auto_host_key] == true
+    end
+  end
+
+  describe "build_start_opts/2" do
+    test "local transport prepends the state" do
+      state = State.new(Fixtures.sample_domains())
+
+      assert AshTui.build_start_opts(state, [])[:state] == state
+    end
+
+    test "ssh transport nests state under app_opts and merges defaults" do
+      state = State.new(Fixtures.sample_domains())
+      opts = AshTui.build_start_opts(state, transport: :ssh)
+
+      assert opts[:transport] == :ssh
+      assert opts[:port] == 2222
+      assert opts[:app_opts][:state] == state
+    end
+
+    test "distributed transport nests state under app_opts" do
+      state = State.new(Fixtures.sample_domains())
+      opts = AshTui.build_start_opts(state, transport: :distributed)
+
+      assert opts[:transport] == :distributed
+      assert opts[:app_opts][:state] == state
     end
   end
 

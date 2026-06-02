@@ -120,27 +120,35 @@ defmodule AshTui do
     end
 
     state = AshTui.State.new(data)
-    transport = Keyword.get(opts, :transport, :local)
 
-    start_opts =
-      if transport == :local do
-        [{:state, state} | opts]
-      else
-        app_opts = [{:state, state} | Keyword.get(opts, :app_opts, [])]
-        opts = Keyword.put(opts, :app_opts, app_opts)
-
-        case transport do
-          :ssh -> ssh_defaults(opts)
-          :distributed -> opts
-        end
-      end
-
-    {:ok, pid} = AshTui.App.start_link(start_opts)
+    # The process starter is read from config so the boot path can be
+    # exercised in tests without a real terminal; it defaults to the live
+    # `AshTui.App.start_link/1`.
+    starter = Application.get_env(:ash_tui, :app_starter, &AshTui.App.start_link/1)
+    {:ok, pid} = starter.(build_start_opts(state, opts))
 
     ref = Process.monitor(pid)
 
     receive do
       {:DOWN, ^ref, :process, ^pid, _reason} -> :ok
+    end
+  end
+
+  @doc false
+  @spec build_start_opts(AshTui.State.t(), keyword()) :: keyword()
+  def build_start_opts(state, opts) do
+    transport = Keyword.get(opts, :transport, :local)
+
+    if transport == :local do
+      [{:state, state} | opts]
+    else
+      app_opts = [{:state, state} | Keyword.get(opts, :app_opts, [])]
+      opts = Keyword.put(opts, :app_opts, app_opts)
+
+      case transport do
+        :ssh -> ssh_defaults(opts)
+        :distributed -> opts
+      end
     end
   end
 

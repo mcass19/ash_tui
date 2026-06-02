@@ -16,11 +16,11 @@ defmodule AshTui.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       test_coverage: [
-        threshold: 95,
+        threshold: 100,
         ignore_modules: [
-          # `mix ash.tui` boots a real terminal session via
-          # `AshTui.explore/2`. The CLI shell is thin glue; the work it
-          # delegates to is covered directly.
+          # Two-line shell: starts the app and delegates to `AshTui.CLI`,
+          # which is covered directly. Booting it would start a real
+          # terminal session.
           Mix.Tasks.Ash.Tui,
           # Test fixtures — exercised by tests.
           AshTui.Test.TestDomain,
@@ -96,9 +96,7 @@ defmodule AshTui.MixProject do
       groups_for_modules: [
         Core: [
           AshTui,
-          AshTui.App,
-          AshTui.Format,
-          AshTui.Theme
+          AshTui.App
         ],
         Introspection: [
           AshTui.Introspection,
@@ -112,12 +110,14 @@ defmodule AshTui.MixProject do
         State: [
           AshTui.State
         ],
-        Views: [
+        Rendering: [
           AshTui.Views.NavPanel,
           AshTui.Views.AttributesTab,
           AshTui.Views.AttributeDetail,
           AshTui.Views.ActionsTab,
-          AshTui.Views.RelationshipsTab
+          AshTui.Views.RelationshipsTab,
+          AshTui.Theme,
+          AshTui.Format
         ],
         "Mix Tasks": [
           Mix.Tasks.Ash.Tui

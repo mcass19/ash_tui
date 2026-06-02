@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump `ex_ratatui` to `~> 0.10`, `ash` to `~> 3.27`, and `ex_doc` to `~> 0.40`
 - Back `AshTui.Theme` with a single `ExRatatui.Theme` palette struct — internal refactor, no visual change
+- Extract the `mix ash.tui` task logic into an internal, testable module and raise test coverage to 100%
+- Group `Theme` and `Format` under a "Rendering" section in the docs (Core is now just `AshTui` and `AshTui.App`)
 - Trim a redundant rich-text note from the README
 
 ### Fixed

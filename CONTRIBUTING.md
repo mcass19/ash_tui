@@ -29,10 +29,10 @@ mix deps.get
 
 ```sh
 mix test
-mix test --cover        # must report >95% Total
+mix test --cover        # must report 100% Total
 ```
 
-A small number of modules are excluded from coverage in `mix.exs`. The threshold applies to everything else.
+A small number of test modules are excluded from coverage in `mix.exs`. The threshold applies to everything else.
 
 For an actual smoke test, open the TUI with the app under `examples/`.
 

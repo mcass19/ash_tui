@@ -59,58 +59,7 @@ defmodule Mix.Tasks.Ash.Tui do
 
   @impl true
   def run(args) do
-    {opts, _rest} =
-      OptionParser.parse!(args,
-        strict: [otp_app: :string, ssh: :boolean, distributed: :boolean, port: :integer]
-      )
-
-    otp_app =
-      case Keyword.get(opts, :otp_app) do
-        nil -> Mix.Project.config()[:app]
-        app -> String.to_existing_atom(app)
-      end
-
     Mix.Task.run("app.start")
-
-    explore_opts =
-      cond do
-        opts[:ssh] ->
-          ssh_opts = [transport: :ssh]
-          if port = opts[:port], do: Keyword.put(ssh_opts, :port, port), else: ssh_opts
-
-        opts[:distributed] ->
-          [transport: :distributed]
-
-        true ->
-          []
-      end
-
-    if explore_opts[:transport] do
-      Mix.shell().info(transport_banner(explore_opts))
-    end
-
-    AshTui.explore(otp_app, explore_opts)
-  end
-
-  defp transport_banner(opts) do
-    case opts[:transport] do
-      :ssh ->
-        port = Keyword.get(opts, :port, 2222)
-
-        """
-
-        Ash TUI explorer running over SSH on port #{port}.
-        Connect with: ssh ash@localhost -p #{port}  (password: tui)
-        Press Ctrl+C to stop the daemon.
-        """
-
-      :distributed ->
-        """
-
-        Ash TUI explorer listening for distribution connections.
-        Attach from another node: ExRatatui.Distributed.attach(:"#{Node.self()}", AshTui.App)
-        Press Ctrl+C to stop the listener.
-        """
-    end
+    AshTui.CLI.main(args, &AshTui.explore/2)
   end
 end
