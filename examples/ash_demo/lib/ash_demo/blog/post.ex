@@ -26,6 +26,14 @@ defmodule AshDemo.Blog.Post do
       public? true
     end
 
+    # Numeric constraint — shows in the attribute detail overlay's
+    # constraints section, which otherwise only ever hits `one_of`.
+    attribute :view_count, :integer do
+      constraints min: 0
+      default 0
+      public? true
+    end
+
     timestamps()
   end
 
@@ -44,6 +52,13 @@ defmodule AshDemo.Blog.Post do
 
     update :publish do
       accept []
+
+      # Custom action argument — populates the Actions tab's "Arguments"
+      # column, which is empty for every other action in this demo.
+      argument :notify, :boolean do
+        allow_nil? true
+        default false
+      end
 
       change set_attribute(:status, :published)
       change set_attribute(:published_at, &DateTime.utc_now/0)

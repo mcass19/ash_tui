@@ -10,7 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump `ex_ratatui` to `~> 0.10`, `ash` to `~> 3.27`, and `ex_doc` to `~> 0.40`
+- Back `AshTui.Theme` with a single `ExRatatui.Theme` palette struct — internal refactor, no visual change
 - Trim a redundant rich-text note from the README
+
+### Fixed
+
+- Navigation panel no longer crashes rendering when the list is empty (no domains) or when its selection falls past a list that shrank after switching domains — `ex_ratatui` 0.10 validates list-selection bounds, so the selected row is now reconciled with the visible rows
+
+### Examples
+
+- `ash_demo` now exercises a custom action argument (`Post.publish`'s `:notify`) and numeric/string attribute constraints (`Post.view_count`, `Tag.slug`), so the Actions "Arguments" column and the attribute constraint overlay are no longer empty
 
 ## [0.3.1] - 2026-04-30
 

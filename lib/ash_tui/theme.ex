@@ -7,6 +7,10 @@ defmodule AshTui.Theme do
   `%ExRatatui.Style{}`, an `%ExRatatui.Text.Span{}`, or an
   `%ExRatatui.Text.Line{}` — never a side effect.
 
+  The palette is held internally as a single `%ExRatatui.Theme{}` struct;
+  the color accessors below read individual slots from it, and the border
+  styles delegate to `ExRatatui.Theme.border_style/2`.
+
   ## Colors
 
     * `ash_orange/0` - Ash brand orange
@@ -47,7 +51,7 @@ defmodule AshTui.Theme do
       {:rgb, 255, 107, 53}
   """
   @spec ash_orange() :: ExRatatui.Style.color()
-  def ash_orange, do: {:rgb, 255, 107, 53}
+  def ash_orange, do: palette().primary
 
   @doc """
   Cornflower blue, used for focused panel borders.
@@ -58,7 +62,7 @@ defmodule AshTui.Theme do
       {:rgb, 100, 149, 237}
   """
   @spec cornflower() :: ExRatatui.Style.color()
-  def cornflower, do: {:rgb, 100, 149, 237}
+  def cornflower, do: palette().border_focused
 
   @doc """
   Gold, used for highlights and selected items.
@@ -69,7 +73,7 @@ defmodule AshTui.Theme do
       {:rgb, 255, 215, 0}
   """
   @spec gold() :: ExRatatui.Style.color()
-  def gold, do: {:rgb, 255, 215, 0}
+  def gold, do: palette().accent
 
   @doc """
   Subtle dark background for selected rows.
@@ -80,7 +84,7 @@ defmodule AshTui.Theme do
       {:rgb, 40, 40, 60}
   """
   @spec highlight_bg() :: ExRatatui.Style.color()
-  def highlight_bg, do: {:rgb, 40, 40, 60}
+  def highlight_bg, do: palette().surface_alt
 
   @doc """
   Muted border color for unfocused panels.
@@ -91,7 +95,7 @@ defmodule AshTui.Theme do
       {:rgb, 60, 60, 80}
   """
   @spec dim_border() :: ExRatatui.Style.color()
-  def dim_border, do: {:rgb, 60, 60, 80}
+  def dim_border, do: palette().border
 
   @doc """
   Muted text color for secondary information.
@@ -102,7 +106,7 @@ defmodule AshTui.Theme do
       {:rgb, 150, 150, 170}
   """
   @spec dim_text() :: ExRatatui.Style.color()
-  def dim_text, do: {:rgb, 150, 150, 170}
+  def dim_text, do: palette().text_dim
 
   @doc """
   Dark background for modal overlays.
@@ -113,7 +117,7 @@ defmodule AshTui.Theme do
       {:rgb, 20, 20, 30}
   """
   @spec overlay_bg() :: ExRatatui.Style.color()
-  def overlay_bg, do: {:rgb, 20, 20, 30}
+  def overlay_bg, do: palette().surface
 
   # ── Composite Styles ───────────────────────────────────────
 
@@ -148,7 +152,7 @@ defmodule AshTui.Theme do
   """
   @spec focused_border_style() :: Style.t()
   def focused_border_style do
-    %Style{fg: cornflower()}
+    ExRatatui.Theme.border_style(palette(), focused: true)
   end
 
   @doc """
@@ -162,7 +166,7 @@ defmodule AshTui.Theme do
   """
   @spec unfocused_border_style() :: Style.t()
   def unfocused_border_style do
-    %Style{fg: dim_border()}
+    ExRatatui.Theme.border_style(palette())
   end
 
   @doc """
@@ -352,5 +356,29 @@ defmodule AshTui.Theme do
       end)
 
     %Line{spans: spans}
+  end
+
+  # ── Palette ────────────────────────────────────────────────
+
+  # The whole palette lives in one `%ExRatatui.Theme{}` struct; the color
+  # accessors above read individual slots from it. AshTui's brand colors
+  # map onto the semantic slots below. The two background colors are a
+  # slight stretch — the modal background lands on `:surface` and the
+  # selected-row background on `:surface_alt` — but keeping every color
+  # in one struct is the point of the migration.
+  defp palette do
+    %ExRatatui.Theme{
+      primary: {:rgb, 255, 107, 53},
+      accent: {:rgb, 255, 215, 0},
+      border: {:rgb, 60, 60, 80},
+      border_focused: {:rgb, 100, 149, 237},
+      surface: {:rgb, 20, 20, 30},
+      surface_alt: {:rgb, 40, 40, 60},
+      text: :white,
+      text_dim: {:rgb, 150, 150, 170},
+      success: :green,
+      warning: :yellow,
+      danger: :red
+    }
   end
 end

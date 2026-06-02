@@ -92,9 +92,11 @@ defmodule AshTui.Views.NavPanel do
         {:resource, resource} -> format_resource(resource.name)
       end)
 
+    selected = clamp_selected(state.nav_selected, length(list_items))
+
     nav_list = %WidgetList{
       items: list_items,
-      selected: state.nav_selected,
+      selected: selected,
       highlight_style: Theme.highlight_style(),
       highlight_symbol: "\u{25B6} ",
       block: %Block{
@@ -114,7 +116,7 @@ defmodule AshTui.Views.NavPanel do
         scrollbar = %Scrollbar{
           orientation: :vertical_right,
           content_length: item_count,
-          position: state.nav_selected,
+          position: selected || 0,
           viewport_content_length: viewport_h,
           thumb_style: %Style{fg: Theme.cornflower()},
           track_style: %Style{fg: Theme.dim_border()}
@@ -127,6 +129,14 @@ defmodule AshTui.Views.NavPanel do
 
     [{nav_list, rect}] ++ scrollbar_widgets
   end
+
+  # ex_ratatui 0.10 validates that a List's `selected` is nil or in range.
+  # `nav_selected` can fall outside the visible list — an empty app (no
+  # domains) or a list that shrinks when domains collapse / search filters —
+  # so reconcile the desired index against the rendered rows here, matching
+  # ratatui's own prior clamp-to-range behaviour.
+  defp clamp_selected(_index, 0), do: nil
+  defp clamp_selected(index, count), do: min(index, count - 1)
 
   defp format_domain(name), do: "\u{25C6} #{Format.short_name(name)}"
 

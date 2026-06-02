@@ -13,6 +13,7 @@ defmodule AshDemo.Blog.Tag do
 
     attribute :slug, :string do
       allow_nil? false
+      constraints max_length: 40, match: ~r/^[a-z0-9-]+$/
       public? true
     end
 
