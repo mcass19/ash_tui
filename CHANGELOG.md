@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-06-25
+
 ### Fixed
 
 - Navigation selection no longer dangles past the visible list after expanding a different domain (or popping the nav stack) onto a shorter list — `nav_selected` is now reconciled with the reshaped list in state, not just clamped at render time, so the highlighted row stays selectable with `enter` and the list never hands `ex_ratatui` an out-of-range selection
@@ -119,7 +121,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Footer keybinding hints now show `j/k/h/l` alongside arrow keys
 - Removed Constraints column from the attributes table to avoid truncation — constraints are now shown in the attribute detail overlay instead
 
-[Unreleased]: https://github.com/mcass19/ash_tui/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/mcass19/ash_tui/compare/v0.3.3...HEAD
+[0.3.3]: https://github.com/mcass19/ash_tui/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/mcass19/ash_tui/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/mcass19/ash_tui/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/mcass19/ash_tui/compare/v0.2.0...v0.3.0
