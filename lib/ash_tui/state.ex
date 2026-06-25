@@ -443,6 +443,7 @@ defmodule AshTui.State do
     resource = List.first(domain.resources)
 
     %{state | current_domain: domain, current_resource: resource, detail_selected: 0}
+    |> reconcile_nav_selected()
   end
 
   defp select_resource(state, resource) do
@@ -464,6 +465,7 @@ defmodule AshTui.State do
             current_tab: :attributes,
             detail_selected: 0
         }
+        |> reconcile_nav_selected()
 
       nil ->
         state
@@ -483,11 +485,14 @@ defmodule AshTui.State do
             current_tab: tab,
             detail_selected: 0
         }
+        |> reconcile_nav_selected()
 
       nil ->
         # Fallback: just find the domain
         domain = Enum.find(state.domains, &(&1.name == domain_name))
+
         %{state | nav_stack: rest, current_domain: domain, current_tab: tab, detail_selected: 0}
+        |> reconcile_nav_selected()
     end
   end
 
@@ -507,6 +512,15 @@ defmodule AshTui.State do
   end
 
   defp clear_search(state), do: %{state | searching: false}
+
+  # Expanding a different domain (or popping the nav stack) reshapes the visible
+  # list, so a previously valid `nav_selected` can fall off the shorter list.
+  # Clamp it back into range — keeping the highlighted row selectable by `enter`
+  # and never handing `ex_ratatui` an out-of-bounds list selection.
+  defp reconcile_nav_selected(state) do
+    max_idx = max(length(nav_items(state)) - 1, 0)
+    %{state | nav_selected: min(state.nav_selected, max_idx)}
+  end
 
   # ── Helpers ──────────────────────────────────────────────────
 
