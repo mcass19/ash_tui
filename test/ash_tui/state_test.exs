@@ -109,6 +109,22 @@ defmodule AshTui.StateTest do
       items = State.nav_items(state)
       assert state.nav_selected == length(items) - 1
     end
+
+    test "switching to a domain with a shorter list reconciles nav_selected", %{state: state} do
+      # Accounts expanded: [Accounts, User, Token, Blog] — select Blog (index 3)
+      state = state |> State.handle_key("j") |> State.handle_key("j") |> State.handle_key("j")
+      assert state.nav_selected == 3
+
+      # Enter expands Blog and collapses Accounts: [Accounts, Blog, Post] — only 3 rows
+      state = State.handle_key(state, "enter")
+      items = State.nav_items(state)
+      assert length(items) == 3
+
+      # nav_selected must stay inside the now-shorter list, not dangle at 3, so the
+      # highlighted row is selectable and ex_ratatui's list-bounds check never trips
+      assert state.nav_selected == length(items) - 1
+      refute is_nil(Enum.at(items, state.nav_selected))
+    end
   end
 
   describe "handle_key/2 - focus" do

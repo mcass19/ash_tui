@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.3.1] - 2026-06-02
+### Fixed
+
+- Navigation selection no longer dangles past the visible list after expanding a different domain (or popping the nav stack) onto a shorter list — `nav_selected` is now reconciled with the reshaped list in state, not just clamped at render time, so the highlighted row stays selectable with `enter` and the list never hands `ex_ratatui` an out-of-range selection
+
+## [0.3.2] - 2026-06-02
 
 ### Changed
 
