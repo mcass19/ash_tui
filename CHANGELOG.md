@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Test fixtures compile again under `ash` 3.33+, which now refuses to compile any resource until `config :ash, :default_string_length_count` is set — added `config/config.exs` with the recommended `:codepoints` setting. Applications using `ash_tui` set their own value; a library's `config/` is not inherited
+
 ## [0.3.3] - 2026-06-25
 
 ### Fixed
